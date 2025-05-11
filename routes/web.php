@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\StudentController;
 
+use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
 
 Route::get('/', function () {
      return view('welcome');
@@ -70,4 +71,14 @@ Route::prefix('admin')
                   ->name('student.index');
             Route::post('student/new', [StudentController::class, 'create'])
                   ->name('student.create');
+     });
+
+
+Route::prefix('teacher')
+     ->name('teacher.')
+     ->middleware(['auth', 'role:' . \App\Models\User::ROLE_TEACHER])
+     ->group(function () {
+          Route::get('dashboard', [TeacherDashboard::class, 'index'])
+               ->name('dashboard');
+
      });

@@ -18,7 +18,7 @@ class TeacherController extends Controller
             'students'
         ])
         ->orderBy('created_at','desc')
-        ->get();
+        ->paginate(10); // Added pagination with 10 items per page
         return view('admin.teachers_list', compact('teachers'));
     }
 
@@ -28,7 +28,7 @@ class TeacherController extends Controller
           'name'  => 'required|string|max:255',
           'email' => 'required|email|unique:users,email',
         ]);
-        $data['password'] = bcrypt('secret123'); // or generate/send password
+        $data['password'] = bcrypt($request->password); // or generate/send password
         $data['role']     = User::ROLE_TEACHER;
         $data['admin_id'] = auth()->id();
         User::create($data);

@@ -20,7 +20,7 @@ class AdminController extends Controller
             'students'
         ])
         ->orderBy('created_at','desc')
-        ->get();
+        ->paginate(10);
 
         return view('superadmin.admins_list', compact('admins'));
     }

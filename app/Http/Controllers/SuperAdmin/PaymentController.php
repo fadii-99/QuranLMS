@@ -10,7 +10,7 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        $payments = User::where('role', User::ROLE_ADMIN)->get();
+        $payments = User::where('role', User::ROLE_ADMIN)->where('id',1111)->paginate(10);;
         return view('superadmin.payments', compact('payments'));
     }
 }

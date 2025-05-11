@@ -111,45 +111,49 @@
   <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden">
     <table class="min-w-full">
       <thead>
-        <tr class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
-          <th class="px-4 py-3 text-left">Name</th>
-          <th class="px-4 py-3 text-left">Email</th>
-          <th class="px-4 py-3 text-left">Students</th>
-          <th class="px-4 py-3 text-left">Registered</th>
-          <th class="px-4 py-3 text-left">Actions</th>
-        </tr>
+      <tr class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+        <th class="px-4 py-3 text-left">Name</th>
+        <th class="px-4 py-3 text-left">Email</th>
+        <th class="px-4 py-3 text-left">Students</th>
+        <th class="px-4 py-3 text-left">Registered</th>
+        <th class="px-4 py-3 text-left">Actions</th>
+      </tr>
       </thead>
       <tbody>
-        @forelse($teachers as $teacher)
-          <tr class="border-t border-gray-200 dark:border-gray-600">
-            <td class="px-4 py-2">{{ $teacher->name }}</td>
-            <td class="px-4 py-2">{{ $teacher->email }}</td>
-            <td class="px-4 py-2">{{ $teacher->students_count }}</td>
-            <td class="px-4 py-2">{{ $teacher->created_at->format('Y-m-d') }}</td>
-            <td class="px-4 py-2 flex space-x-2">
-              <button class="edit-teacher text-blue-500 hover:text-blue-700" data-id="{{ $teacher->id }}"
-                data-name="{{ $teacher->name }}" data-email="{{ $teacher->email }}">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="delete-teacher text-red-500 hover:text-red-700" data-id="{{ $teacher->id }}"
-                data-name="{{ $teacher->name }}">
-                <i class="fas fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-        @empty
-            <tr>
-            <td colspan="7" class="px-8 py-12 text-center">
-              <div class="flex flex-col items-center justify-center space-y-3">
-              <i class="fas fa-user-slash text-4xl text-gray-400 dark:text-gray-500"></i>
-              <p class="text-gray-500 dark:text-gray-400 text-lg font-medium">No teachers found</p>
-              <p class="text-gray-400 dark:text-gray-500 text-sm">Click on "New Teacher" button to add a teacher</p>
-              </div>
-            </td>
-            </tr>
-        @endforelse
+      @forelse($teachers as $teacher)
+        <tr class="border-t border-gray-200 dark:border-gray-600">
+        <td class="px-4 py-2">{{ $teacher->name }}</td>
+        <td class="px-4 py-2">{{ $teacher->email }}</td>
+        <td class="px-4 py-2">{{ $teacher->students_count }}</td>
+        <td class="px-4 py-2">{{ $teacher->created_at->format('Y-m-d') }}</td>
+        <td class="px-4 py-2 flex space-x-2">
+          <button class="edit-teacher text-blue-500 hover:text-blue-700" data-id="{{ $teacher->id }}"
+          data-name="{{ $teacher->name }}" data-email="{{ $teacher->email }}">
+          <i class="fas fa-edit"></i>
+          </button>
+          <button class="delete-teacher text-red-500 hover:text-red-700" data-id="{{ $teacher->id }}"
+          data-name="{{ $teacher->name }}">
+          <i class="fas fa-trash"></i>
+          </button>
+        </td>
+        </tr>
+      @empty
+        <tr>
+        <td colspan="7" class="px-8 py-12 text-center">
+          <div class="flex flex-col items-center justify-center space-y-3">
+          <i class="fas fa-user-slash text-4xl text-gray-400 dark:text-gray-500"></i>
+          <p class="text-gray-500 dark:text-gray-400 text-lg font-medium">No teachers found</p>
+          <p class="text-gray-400 dark:text-gray-500 text-sm">Click on "New Teacher" button to add a teacher</p>
+          </div>
+        </td>
+        </tr>
+      @endforelse
       </tbody>
     </table>
+    
+    <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+      {{ $teachers->links('vendor.pagination.tailwind') }}
+    </div>
   </div>
 
   <script>

@@ -39,14 +39,23 @@
 
     @guest
         <div class="flex items-center space-x-4">
-            @if(request()->routeIs('signup'))
-            <a href="{{ route('login') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                Login
-            </a>
+            @if (!request()->routeIs('signup') && !request()->routeIs('login'))
+                <a href="{{ route('login') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Login
+                </a>
+                <a href="{{ route('signup') }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    Sign Up
+                </a>
+            @endif
+
+            @if (request()->routeIs('signup'))
+                <a href="{{ route('login') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Login
+                </a>
             @endif
 
             {{-- Only on the login page, show “Sign Up” --}}
-            @if(request()->routeIs('login'))
+            @if (request()->routeIs('login'))
                 <a href="{{ route('signup') }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                     Sign Up
                 </a>

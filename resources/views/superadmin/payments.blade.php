@@ -69,16 +69,7 @@
           </tr>
         </thead>
         <tbody>
-          @php
-            $dummyPayments = [
-              ['name' => 'Ahmed Khan', 'amount' => 'PKR 50,000', 'date' => 'May 15, 2025', 'status' => 'Pending'],
-              ['name' => 'Fatima Ali', 'amount' => 'PKR 45,000', 'date' => 'May 20, 2025', 'status' => 'Pending'],
-              ['name' => 'Yusuf Rahman', 'amount' => 'PKR 60,000', 'date' => 'May 25, 2025', 'status' => 'Pending'],
-              ['name' => 'Aisha Siddiqa', 'amount' => 'PKR 55,000', 'date' => 'May 05, 2025', 'status' => 'Processed'],
-              ['name' => 'Bilal Ahmed', 'amount' => 'PKR 70,000', 'date' => 'May 01, 2025', 'status' => 'Processed'],
-            ];
-          @endphp
-          @forelse ($dummyPayments as $index => $payment)
+          @forelse ($payments as $index => $payment)
             <tr class="{{ $index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-600/50' : 'bg-white dark:bg-gray-700' }} border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
               <td class="px-6 py-4 font-medium">{{ $payment['name'] }}</td>
               <td class="px-6 py-4">{{ $payment['amount'] }}</td>
@@ -96,11 +87,20 @@
             </tr>
           @empty
             <tr>
-              <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No payments found</td>
+              <td colspan="5" class="px-6 py-12 text-center">
+              <div class="flex flex-col items-center justify-center">
+                <i class="fas fa-receipt text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
+                <p class="text-gray-500 dark:text-gray-400 text-lg font-medium">No payments found</p>
+                <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">There are no payment records to display</p>
+              </div>
+              </td>
             </tr>
           @endforelse
         </tbody>
       </table>
+      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+        {{ $payments->links() }}
+    </div>
     </div>
   </div>
 @endsection

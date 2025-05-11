@@ -13,10 +13,10 @@ class StudentController extends Controller
     {
         $students = User::where('role', User::ROLE_STUDENT)
         ->orderBy('created_at','desc')
-        ->get();
+        ->paginate(10);
         return view('admin.students_list', compact('students'));
     }
-
+    
     public function create(Request $request)
     {
         $data = $request->validate([
@@ -30,6 +30,6 @@ class StudentController extends Controller
 
           User::create($data);
 
-        return view('admin.students_list')->with('success', 'Student created successfully.');
+        return view('admin.student.index')->with('success', 'Student created successfully.');
     }
 }

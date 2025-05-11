@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+
 
 class AuthController extends Controller
 {
@@ -20,15 +22,16 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        
         if (Auth::attempt($credentials, $req->boolean('remember'))) {
             $req->session()->regenerate();
             
             $user = Auth::user();
-            if ($user->role === 'superadmin') {
+            if ($user->role === USER::ROLE_SUPER_ADMIN) {
                 return redirect()->route('superadmin.dashboard');
-            } elseif ($user->role === 'admin') {
+            } elseif ($user->role === USER::ROLE_ADMIN) {
                 return redirect()->route('admin.dashboard');
-            } elseif ($user->role === 'teacher') {
+            } elseif ($user->role === USER::ROLE_TEACHER) {
                 return redirect()->route('teacher.dashboard');
             } else {
                 return redirect()->route('student.dashboard');

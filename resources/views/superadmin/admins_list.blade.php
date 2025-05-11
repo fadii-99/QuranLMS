@@ -210,13 +210,22 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-4 py-4 text-center text-gray-500 dark:text-gray-400">
-                            No admins found.
+                        <td colspan="8" class="px-6 py-8 text-center">
+                            <div class="flex flex-col items-center justify-center space-y-3">
+                                <div class="bg-gray-100 dark:bg-gray-800 rounded-full p-3">
+                                    <i class="fas fa-users-slash text-3xl text-gray-400 dark:text-gray-500"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-500 dark:text-gray-400">No Admins Found</h3>
+                                <p class="text-sm text-gray-400 dark:text-gray-500">Click the "New Admin" button above to add an administrator.</p>
+                            </div>
                         </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
+        <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+            {{ $admins->links() }}
+        </div>
     </div>
 
     <script>

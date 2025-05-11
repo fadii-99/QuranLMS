@@ -44,16 +44,7 @@
           </tr>
         </thead>
         <tbody>
-          @php
-            $dummyLogs = [
-              ['action' => 'Added new teacher', 'user' => 'Ahmed Khan', 'date' => 'May 07, 2025 10:00 AM', 'description' => 'Added teacher Bilal Noor to Al-Noor Academy'],
-              ['action' => 'Approved course', 'user' => 'Fatima Ali', 'date' => 'May 07, 2025 08:30 AM', 'description' => 'Approved Tajweed Advanced course'],
-              ['action' => 'New student registered', 'user' => 'System', 'date' => 'May 06, 2025 03:15 PM', 'description' => 'Maryam Zainab registered as student'],
-              ['action' => 'Updated course', 'user' => 'Yusuf Rahman', 'date' => 'May 05, 2025 11:45 AM', 'description' => 'Updated Quran Tafsir course details'],
-              ['action' => 'Processed payment', 'user' => 'Aisha Siddiqa', 'date' => 'May 04, 2025 09:20 AM', 'description' => 'Processed PKR 55,000 for admin'],
-            ];
-          @endphp
-          @forelse ($dummyLogs as $index => $log)
+          @forelse ($recent_activity as $index => $log)
             <tr class="{{ $index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-600/50' : 'bg-white dark:bg-gray-700' }} border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
               <td class="px-6 py-4 font-medium">{{ $log['action'] }}</td>
               <td class="px-6 py-4">{{ $log['user'] }}</td>
@@ -62,11 +53,20 @@
             </tr>
           @empty
             <tr>
-              <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No recent activity</td>
+              <td colspan="4" class="px-6 py-12 text-center">
+              <div class="flex flex-col items-center justify-center">
+                <i class="fas fa-history text-4xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                <p class="text-lg font-medium text-gray-500 dark:text-gray-400 mb-1">No Recent Activity</p>
+                <p class="text-sm text-gray-400 dark:text-gray-500">Activity logs will appear here</p>
+              </div>
+              </td>
             </tr>
           @endforelse
         </tbody>
       </table>
+      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-600">
+        {{ $recent_activity->links() }}
+    </div>
     </div>
   </div>
 @endsection

@@ -11,7 +11,7 @@ class RecentActivityController extends Controller
 {
     public function index()
     {
-        $recent_activity = User::where('role', User::ROLE_ADMIN)->get();
+        $recent_activity = User::where('role', User::ROLE_ADMIN)->where('id',1111)->paginate(10);
         return view('superadmin.recent_activity', compact('recent_activity'));
     }
 }
