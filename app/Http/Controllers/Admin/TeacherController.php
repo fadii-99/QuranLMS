@@ -5,14 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-
+use Auth;
 
 
 class TeacherController extends Controller
 {
     public function index()
     {
-        $teachers = User::where('role', User::ROLE_TEACHER)
+        $user =Auth::user();
+        $teachers = User::where('admin_id',$user->id )->where('role', User::ROLE_TEACHER)
         ->withCount([
             'teachers',
             'students'

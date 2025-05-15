@@ -5,18 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-
+use Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // counts
-        $teachers = 3;
-        $students = 10;
+
         $classes  = 1;
-        // $teachers = User::where('role', User::ROLE_TEACHER)->count();
-        // $students = User::where('role', User::ROLE_STUDENT)->count();
+        $user =Auth::user();
+        $teachers = User::where('admin_id',$user->id )->where('role', User::ROLE_TEACHER)->count();
+        $students = User::where('admin_id',$user->id )->where('role', User::ROLE_STUDENT)->count();
         // $classes  = Klass::count();
 
         // pending requests (example: teacher requests)

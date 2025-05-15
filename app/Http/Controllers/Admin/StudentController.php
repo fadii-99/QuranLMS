@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-
+use Auth;
 
 class StudentController extends Controller
 {
     public function index()
     {
-        $students = User::where('role', User::ROLE_STUDENT)
+        $user =Auth::user();
+        $students = User::where('admin_id',$user->id )->where('role', User::ROLE_STUDENT)
         ->orderBy('created_at','desc')
         ->paginate(10);
         return view('admin.students_list', compact('students'));
