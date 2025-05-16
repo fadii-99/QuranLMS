@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\StudentController;
 
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
+use App\Http\Controllers\Teacher\StudentController as teacherStudentController;
 
 Route::get('/', function () {
      return view('welcome');
@@ -30,6 +31,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/signup', [AuthController::class, 'showSignupForm'])->name('signup');
 Route::post('/signup', [AuthController::class, 'signup']);
 
+
 // Super-Admin protected
 Route::prefix('superadmin')
      ->name('superadmin.')
@@ -42,6 +44,8 @@ Route::prefix('superadmin')
                ->name('admins.index');
           Route::post('admin/new', [AdminController::class, 'create'])
                ->name('admin.create');
+          Route::put('admin/{id}', [AdminController::class, 'update'])
+               ->name('admin.update');
 
           Route::get('payment', [PaymentController::class, 'index'])
                ->name('payment.index');
@@ -54,7 +58,7 @@ Route::prefix('superadmin')
 
 
 
-
+ 
 Route::prefix('admin')
      ->name('admin.')
      ->middleware(['auth', 'role:' . \App\Models\User::ROLE_ADMIN])
@@ -71,9 +75,22 @@ Route::prefix('admin')
                   ->name('student.index');
             Route::post('student/new', [StudentController::class, 'create'])
                   ->name('student.create');
-     });
+            Route::post('student/update', [StudentController::class, 'update'])
+                  ->name('student.update');
+            Route::post('students/delete', [StudentController::class, 'destroy'])
+                  ->name('student.delete');
+
+            Route::post('student/assign/teacher', [StudentController::class, 'assignTeacher'])
+                  ->name('student.assign-teacher');
+            Route::post('student/remove/teacher', [StudentController::class, 'removeTeacher'])
+                  ->name('student.remove-teacher');
+});
 
 
+
+
+
+ 
 Route::prefix('teacher')
      ->name('teacher.')
      ->middleware(['auth', 'role:' . \App\Models\User::ROLE_TEACHER])
@@ -81,4 +98,9 @@ Route::prefix('teacher')
           Route::get('dashboard', [TeacherDashboard::class, 'index'])
                ->name('dashboard');
 
-     });
+          Route::get('students', [teacherStudentController::class, 'studentsList'])
+               ->name('students.index');
+
+
+
+});

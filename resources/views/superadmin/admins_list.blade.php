@@ -91,7 +91,7 @@
                 <i class="fas fa-times text-xl"></i>
             </button>
             <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Edit Admin</h3>
-            <form action="#" method="POST" class="space-y-4">
+            <form id="edit-admin-form" action="" method="POST" class="space-y-4">
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="edit-id" name="id">
@@ -187,13 +187,21 @@
                         <td class="px-4 py-2">
                             {{ $admin->created_at->format('Y-m-d') }}
                         </td>
+                        @if ($admin->is_blocked)
+                            <td class="px-4 py-2">
+                                <span class="text-red-500 font-semibold">Blocked</span>
+                            </td>
+                        @else
+                            
                         <td class="px-4 py-2">
                             <button
-                                class="toggle-status text-sm px-3 py-1 rounded-full {{ $admin->is_paid == true ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }}"
-                                data-id="{{ $admin->id }}" data-status="{{ $admin->status }}">
-                                {{ $admin->is_paid == true ? 'Paid' : 'Not Paid' }}
-                            </button>
-                        </td>
+                            class="toggle-status text-sm px-3 py-1 rounded-full {{ $admin->is_paid == true ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }}"
+                            data-id="{{ $admin->id }}" data-status="{{ $admin->status }}">
+                            {{ $admin->is_paid == true ? 'Paid' : 'Not Paid' }}
+                        </button>
+                    </td>
+                    @endif
+
                         <td class="px-4 py-2 flex space-x-2">
                             <button class="edit-admin text-blue-500 hover:text-blue-700" data-id="{{ $admin->id }}"
                                 data-name="{{ $admin->name }}" data-email="{{ $admin->email }}"
@@ -253,6 +261,8 @@
             const editModal = document.getElementById('edit-admin-modal');
             const closeEditModalBtn = document.getElementById('close-edit-modal');
             const editButtons = document.querySelectorAll('.edit-admin');
+            const editForm = document.getElementById('edit-admin-form');
+
 
             // Inside your DOMContentLoaded handler, in the editButtons.forEach(...)
             editButtons.forEach(button => {
@@ -273,6 +283,7 @@
                     document.getElementById('edit-is_paid').checked = isPaid;
                     document.getElementById('edit-is_blocked').checked = isBlocked;
 
+                    editForm.action = `/superadmin/admin/${id}`;
                     editModal.classList.remove('hidden');
                 });
             });

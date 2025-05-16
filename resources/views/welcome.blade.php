@@ -114,6 +114,12 @@
             bottom: -2rem;
             right: -1.5rem;
         }
+        .dashboard-preview {
+            background: linear-gradient(45deg, #1a365d 0%, #153e75 100%);
+            border-radius: 2rem;
+            transform: perspective(1000px) rotateX(10deg);
+            box-shadow: 0 45px 100px -20px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 
@@ -122,469 +128,136 @@
     @include('partials.nav')
 
 
-    <!-- Hero Section -->
-    <section id="home"
-        class="min-h-screen flex items-center bg-gradient-to-br from-primary to-secondary text-white pt-20 hero-pattern">
-        <div class="container mx-auto px-6 py-12 max-w-7xl flex flex-col lg:flex-row items-center">
-            <div class="lg:w-1/2 mb-12 lg:mb-0" data-aos="fade-right" data-aos-duration="1000">
-                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-8 inline-block">
-                    <p class="text-sm font-semibold uppercase tracking-wider">Since 2015</p>
-                </div>
-                <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Master the Quran with <span
-                        class="gradient-text">Expert Guidance</span></h1>
-                <p class="text-xl md:text-2xl mb-8 text-white/90">Personalized online Quran education with certified
-                    teachers. Learn Tajweed, Hifz, and Arabic from anywhere in the world.</p>
-                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
-                    <a href="signup.html"
-                        class="bg-white text-primary px-8 py-4 rounded-xl hover:bg-gray-100 inline-flex items-center justify-center text-lg font-medium transition-all duration-300 hover:shadow-lg">
-                        <i class="fas fa-user-graduate mr-3"></i> Start Learning
-                    </a>
-                    <a href="#programs"
-                        class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl hover:bg-white/10 inline-flex items-center justify-center text-lg font-medium transition-all duration-300 hover:shadow-lg">
-                        <i class="fas fa-book-open mr-3"></i> Explore Programs
-                    </a>
-                </div>
-                <!--
-                <div class="mt-12 flex items-center space-x-6">
-                    <div class="flex -space-x-3">
-                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Student"
-                            class="w-12 h-12 rounded-full border-2 border-white">
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Student"
-                            class="w-12 h-12 rounded-full border-2 border-white">
-                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Student"
-                            class="w-12 h-12 rounded-full border-2 border-white">
+       <!-- Hero Section -->
+       <section class="pt-32 pb-32">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-16 lg:mb-0">
+                    <h1 class="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                        Transform Your Quran Education Business with 
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500">
+                            Smart Management
+                        </span>
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-8">
+                        All-in-one platform for Quran schools and independent teachers to manage students, 
+                        automate administration, and scale teaching operations.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#signup" class="bg-indigo-600 text-white px-8 py-4 rounded-lg hover:bg-indigo-700">
+                            Start 14-Day Free Trial
+                        </a>
+                        <a href="#demo" class="border border-gray-300 px-8 py-4 rounded-lg hover:bg-gray-50">
+                            Watch Demo Video
+                        </a>
                     </div>
-                     <div>
-                        <p class="font-medium">Join <span class="font-bold">1,200+</span> satisfied students</p>
-                        <div class="flex items-center mt-1">
-                            <i class="fas fa-star text-yellow-300 mr-1"></i>
-                            <i class="fas fa-star text-yellow-300 mr-1"></i>
-                            <i class="fas fa-star text-yellow-300 mr-1"></i>
-                            <i class="fas fa-star text-yellow-300 mr-1"></i>
-                            <i class="fas fa-star text-yellow-300 mr-1"></i>
-                            <span class="ml-2">4.9/5 (230 reviews)</span>
+                    <div class="mt-8 flex items-center space-x-4 text-gray-600">
+                        <div class="flex -space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100"></div>
+                            <div class="w-8 h-8 rounded-full bg-blue-100"></div>
+                            <div class="w-8 h-8 rounded-full bg-purple-100"></div>
                         </div>
+                        <span>Join 250+ Quran education businesses</span>
                     </div>
-                </div> -->
-            </div>
-            <div class="lg:w-1/2 relative" data-aos="fade-left" data-aos-duration="1000">
-                <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1564121211835-e88c852648ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-                        alt="Quran Learning" class="rounded-2xl shadow-2xl w-full h-auto">
-                    <div class="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl w-3/4">
-                        <div class="flex items-center mb-3">
-                            <div class="bg-primary/10 p-3 rounded-lg mr-4">
-                                <i class="fas fa-calendar-check text-primary text-xl"></i>
+                </div>
+                <div class="lg:w-1/2 relative">
+                    <div class="dashboard-preview p-4">
+                        <div class="bg-white rounded-xl p-4 shadow-xl">
+                            <!-- Mock dashboard content -->
+                            <div class="flex justify-between items-center mb-6">
+                                <div class="text-sm font-medium">Student Overview</div>
+                                <div class="text-indigo-600 text-sm">Last 30 days</div>
                             </div>
-                            <h3 class="font-bold text-gray-800 dark:text-white">Flexible Schedule</h3>
+                            <div class="grid grid-cols-3 gap-4 mb-6">
+                                <div class="p-4 bg-indigo-50 rounded-lg">
+                                    <div class="text-2xl font-bold">142</div>
+                                    <div class="text-sm text-gray-600">Active Students</div>
+                                </div>
+                                <div class="p-4 bg-blue-50 rounded-lg">
+                                    <div class="text-2xl font-bold">92%</div>
+                                    <div class="text-sm text-gray-600">Retention Rate</div>
+                                </div>
+                                <div class="p-4 bg-purple-50 rounded-lg">
+                                    <div class="text-2xl font-bold">$8.2k</div>
+                                    <div class="text-sm text-gray-600">Revenue</div>
+                                </div>
+                            </div>
+                            <div class="h-48 bg-gray-100 rounded-lg animate-pulse"></div>
                         </div>
-                        <p class="text-gray-600 dark:text-gray-300">Choose class times that fit your routine. Available
-                            24/7.</p>
                     </div>
-                </div>
-                <div
-                    class="absolute -top-12 -left-12 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl w-2/3 hidden md:block">
-                    <div class="flex items-center mb-3">
-                        <div class="bg-secondary/10 p-3 rounded-lg mr-4">
-                            <i class="fas fa-user-tie text-secondary text-xl"></i>
-                        </div>
-                        <h3 class="font-bold text-gray-800 dark:text-white">Certified Teachers</h3>
-                    </div>
-                    <p class="text-gray-600 dark:text-gray-300">Learn from Alimiyyah graduates with 10+ years
-                        experience.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Quran Verse -->
-    <section class="py-16 bg-white dark:bg-gray-900">
-        <div class="container mx-auto px-6 max-w-5xl text-center">
-            <div class="bg-gray-50 dark:bg-gray-800 p-8 md:p-12 rounded-3xl shadow-sm">
-                <p class="arabic-text text-2xl md:text-4xl  text-gray-800 dark:text-white mb-6 quran-verse">
-                    وَقُرْآنًا فَرَقْنَاهُ لِتَقْرَأَهُ عَلَى النَّاسِ عَلَىٰ مُكْثٍ وَنَزَّلْنَاهُ تَنْزِيلًا
-                </p>
-                <p class="text-lg text-gray-600 dark:text-gray-300 italic">"And We have spaced out the Quran (gradually
-                    revealed it) so that you may recite it to the people in intervals, and We have sent it down in
-                    successive revelations."</p>
-                <p class="text-lg text-gray-500 dark:text-gray-400 mt-4">- Surah Al-Isra (17:106)</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Programs Section -->
-    <section id="programs" class="py-20 bg-gray-50 dark:bg-gray-900">
-        <div class="container mx-auto px-6 max-w-7xl">
+    <!-- Features Grid -->
+    <section id="features" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white mb-6" data-aos="fade-up">Our
-                    Comprehensive Programs</h2>
-                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto" data-aos="fade-up"
-                    data-aos-delay="100">Structured learning paths tailored to all ages and levels, from beginners to
-                    advanced students.</p>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Everything You Need to Scale</h2>
+                <p class="text-xl text-gray-600">Integrated tools for modern Quran education management</p>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Program 1 -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
-                    data-aos="fade-up" data-aos-delay="200">
-                    <div class="h-48 bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
-                        <i class="fas fa-book-quran text-white text-6xl"></i>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="feature-card p-6 border border-gray-200 rounded-xl hover:border-indigo-100 hover:bg-indigo-50/20 transition-all">
+                    <div class="feature-icon w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center text-white mb-4 transition-transform">
+                        <i class="fas fa-users-class"></i>
                     </div>
-                    <div class="p-8">
-                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Quran Recitation</h3>
-                        <p class="text-gray-600 dark:text-gray-300 mb-6">Master proper pronunciation and fluency in
-                            Quran reading with Tajweed rules.</p>
-                        <ul class="space-y-3 mb-8">
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>
-                                <span class="text-gray-700 dark:text-gray-300">Correct pronunciation (Makharij)</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>
-                                <span class="text-gray-700 dark:text-gray-300">Tajweed rules application</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-primary mt-1 mr-3"></i>
-                                <span class="text-gray-700 dark:text-gray-300">Fluency development</span>
-                            </li>
-                        </ul>
-                        <a href="#"
-                            class="text-primary dark:text-primary-light font-medium hover:text-primary-dark dark:hover:text-primary transition-colors duration-300 inline-flex items-center">
-                            Learn more <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Student Management</h3>
+                    <p class="text-gray-600">Track progress, manage schedules, and maintain records for all your students in one place.</p>
                 </div>
-
-                <!-- Program 2 -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
-                    data-aos="fade-up" data-aos-delay="300">
-                    <div class="h-48 bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
-                        <i class="fas fa-brain text-white text-6xl"></i>
-                    </div>
-                    <div class="p-8">
-                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Hifz Program</h3>
-                        <p class="text-gray-600 dark:text-gray-300 mb-6">Systematic Quran memorization with proven
-                            techniques and revision plans.</p>
-                        <ul class="space-y-3 mb-8">
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-secondary mt-1 mr-3"></i>
-                                <span class="text-gray-700 dark:text-gray-300">Personalized memorization plan</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-secondary mt-1 mr-3"></i>
-                                <span class="text-gray-700 dark:text-gray-300">Effective memorization techniques</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-secondary mt-1 mr-3"></i>
-                                <span class="text-gray-700 dark:text-gray-300">Revision tracking system</span>
-                            </li>
-                        </ul>
-                        <a href="#"
-                            class="text-secondary dark:text-secondary-light font-medium hover:text-secondary-dark dark:hover:text-secondary transition-colors duration-300 inline-flex items-center">
-                            Learn more <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Program 3 -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
-                    data-aos="fade-up" data-aos-delay="400">
-                    <div class="h-48 bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center">
-                        <i class="fas fa-language text-white text-6xl"></i>
-                    </div>
-                    <div class="p-8">
-                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Arabic Language</h3>
-                        <p class="text-gray-600 dark:text-gray-300 mb-6">Understand the Quran in its original language
-                            through comprehensive Arabic courses.</p>
-                        <ul class="space-y-3 mb-8">
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-purple-500 mt-1 mr-3"></i>
-                                <span class="text-gray-700 dark:text-gray-300">Classical Arabic grammar</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-purple-500 mt-1 mr-3"></i>
-                                <span class="text-gray-700 dark:text-gray-300">Quranic vocabulary building</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-check-circle text-purple-500 mt-1 mr-3"></i>
-                                <span class="text-gray-700 dark:text-gray-300">Sentence structure analysis</span>
-                            </li>
-                        </ul>
-                        <a href="#"
-                            class="text-purple-500 dark:text-purple-400 font-medium hover:text-purple-700 dark:hover:text-purple-300 transition-colors duration-300 inline-flex items-center">
-                            Learn more <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                    </div>
-                </div>
+                
+                <!-- Add more feature cards -->
+                <!-- Virtual Classroom -->
+                <!-- Payment Processing -->
+                <!-- Automated Reporting -->
+                <!-- Course Builder -->
+                <!-- API Access -->
             </div>
+        </div>
+    </section>
 
-            <div class="text-center mt-16" data-aos="fade-up">
-                <a href="programs"
-                    class="inline-flex items-center justify-center px-8 py-4 bg-primary text-white rounded-xl hover:bg-primary-dark transition-all duration-300 hover:shadow-lg text-lg font-medium">
-                    <i class="fas fa-list mr-3"></i> View All Programs
+    <!-- Integrations Section -->
+    <section id="integrations" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Seamless Integrations</h2>
+                <p class="text-xl text-gray-600">Connect with tools you already use</p>
+            </div>
+            <div class="grid grid-cols-6 gap-8 place-items-center">
+                <img src="zoom-logo.svg" alt="Zoom" class="h-12 opacity-75 hover:opacity-100 transition-opacity">
+                <!-- Add other integration logos -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Simple, Transparent Pricing</h2>
+                <p class="text-xl text-gray-600">Scale with your business needs</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Pricing Tiers -->
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-indigo-600 text-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-6">Start Growing Your Quran School Today</h2>
+            <p class="text-xl mb-8">Join hundreds of educators using QuranFlow to manage their teaching businesses</p>
+            <div class="flex justify-center space-x-4">
+                <a href="#signup" class="bg-white text-indigo-600 px-8 py-4 rounded-lg hover:bg-gray-100">
+                    Get Started for Free
+                </a>
+                <a href="#demo" class="border border-white px-8 py-4 rounded-lg hover:bg-white/10">
+                    Schedule a Demo
                 </a>
             </div>
         </div>
     </section>
-
-    <!-- Methodology Section -->
-    <section id="methodology" class="py-20 bg-white dark:bg-gray-900">
-        <div class="container mx-auto px-6 max-w-7xl">
-            <div class="flex flex-col lg:flex-row items-center gap-12">
-                <div class="lg:w-1/2" data-aos="fade-right">
-                    <h2 class="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white mb-8">Our Proven <span
-                            class="gradient-text">Teaching Methodology</span></h2>
-                    <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">At Al-Qalam Academy, we
-                        combine traditional Islamic teaching methods with modern educational technology to create an
-                        effective and engaging learning experience.</p>
-
-                    <div class="space-y-6">
-                        <div class="flex items-start">
-                            <div class="bg-primary/10 p-4 rounded-xl mr-6">
-                                <i class="fas fa-user-check text-primary text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">One-on-One Attention
-                                </h3>
-                                <p class="text-gray-600 dark:text-gray-300">Personalized lessons tailored to your
-                                    learning style and pace.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start">
-                            <div class="bg-secondary/10 p-4 rounded-xl mr-6">
-                                <i class="fas fa-chart-line text-secondary text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Progress Tracking</h3>
-                                <p class="text-gray-600 dark:text-gray-300">Regular assessments and detailed progress
-                                    reports.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start">
-                            <div class="bg-accent/10 p-4 rounded-xl mr-6">
-                                <i class="fas fa-laptop text-accent text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Interactive Learning
-                                </h3>
-                                <p class="text-gray-600 dark:text-gray-300">Engaging digital tools and resources for
-                                    effective learning.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:w-1/2 relative" data-aos="fade-left">
-                    <div class="relative">
-                        <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80"
-                            alt="Teaching Methodology" class="rounded-2xl shadow-xl w-full h-auto">
-                    </div>
-                    <div
-                        class="absolute -bottom-8 -left-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl w-3/4 hidden md:block">
-                        <div class="flex items-center">
-                            <div class="bg-primary/10 p-3 rounded-lg mr-4">
-                                <i class="fas fa-star text-primary text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-gray-800 dark:text-white">95% Success Rate</h3>
-                                <p class="text-gray-600 dark:text-gray-300 text-sm">Students achieve their learning
-                                    goals</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    
-
-    <!-- Stats Section -->
-    <section class="py-16 bg-gradient-to-r from-primary to-secondary text-white">
-        <div class="container mx-auto px-6 max-w-7xl">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                <div class="p-6" data-aos="fade-up" data-aos-delay="100">
-                    <div class="text-4xl md:text-5xl font-bold mb-3">1,200+</div>
-                    <div class="text-lg md:text-xl">Active Students</div>
-                </div>
-                <div class="p-6" data-aos="fade-up" data-aos-delay="200">
-
-                    <div class="text-4xl md:text-5xl font-bold mb-3">50+</div>
-                    <div class="text-lg md:text-xl">Certified Teachers</div>
-                </div>
-                <div class="p-6" data-aos="fade-up" data-aos-delay="300">
-                    <div class="text-4xl md:text-5xl font-bold mb-3">10+</div>
-                    <div class="text-lg md:text-xl">Years of Experience</div>
-                </div>
-                <div class="p-6" data-aos="fade-up" data-aos-delay="400">
-                    <div class="text-4xl md:text-5xl font-bold mb-3">95%</div>
-                    <div class="text-lg md:text-xl">Student Satisfaction</div>
-                </div>
-            </div>
-        </div>
-    </section> 
-    
-    <!-- Testimonials Section -->
-    <!-- <section id="testimonials" class="py-20 bg-white dark:bg-gray-900">
-        <div class="container mx-auto px-6 max-w-7xl">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white mb-6" data-aos="fade-up">What
-                    Our Students Say</h2>
-                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto" data-aos="fade-up"
-                    data-aos-delay="100">Hear from students worldwide who have transformed their Quranic learning
-                    journey with Al-Qalam Academy.</p>
-            </div>
-            <div class="swiper testimonialSwiper">
-                <div class="swiper-wrapper py-4"> 
-
-
-
-                    <div class="swiper-slide">
-                        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mx-4 transition-all duration-300 hover:shadow-xl"
-                            data-aos="fade-up" data-aos-delay="200">
-                            <div class="flex items-center mb-6"> <img
-                                    src="https://randomuser.me/api/portraits/women/50.jpg" alt="Student"
-                                    class="w-16 h-16 rounded-full mr-4 border-2 border-primary">
-                                <div>
-                                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">Sarah M.</h3>
-                                    <p class="text-gray-600 dark:text-gray-300">Canada</p>
-                                </div>
-                            </div>
-                            <p class="text-gray-600 dark:text-gray-300 mb-4">"Al-Qalam Academy has been a blessing. The
-                                one-on-one classes helped me perfect my Tajweed, and the teachers are incredibly patient
-                                and knowledgeable."</p>
-                            <div class="flex items-center"> <i class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300"></i> </div>
-                        </div>
-                    </div> 
-
-
-
-                    <div class="swiper-slide">
-                        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mx-4 transition-all duration-300 hover:shadow-xl"
-                            data-aos="fade-up" data-aos-delay="300">
-                            <div class="flex items-center mb-6"> <img
-                                    src="https://randomuser.me/api/portraits/men/60.jpg" alt="Student"
-                                    class="w-16 h-16 rounded-full mr-4 border-2 border-primary">
-                                <div>
-                                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">Ahmed R.</h3>
-                                    <p class="text-gray-600 dark:text-gray-300">UK</p>
-                                </div>
-                            </div>
-                            <p class="text-gray-600 dark:text-gray-300 mb-4">"The Hifz program is exceptional. My
-                                teacher created a personalized plan that made memorizing the Quran so much easier.
-                                Highly recommended!"</p>
-                            <div class="flex items-center"> <i class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300"></i> </div>
-                        </div>
-                    </div> 
-
-
-
-                    <div class="swiper-slide">
-                        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg mx-4 transition-all duration-300 hover:shadow-xl"
-                            data-aos="fade-up" data-aos-delay="400">
-                            <div class="flex items-center mb-6"> <img
-                                    src="https://randomuser.me/api/portraits/women/70.jpg" alt="Student"
-                                    class="w-16 h-16 rounded-full mr-4 border-2 border-primary">
-                                <div>
-                                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">Fatima Z.</h3>
-                                    <p class="text-gray-600 dark:text-gray-300">USA</p>
-                                </div>
-                            </div>
-                            <p class="text-gray-600 dark:text-gray-300 mb-4">"Learning Arabic with Al-Qalam has deepened
-                                my understanding of the Quran. The interactive lessons are engaging and effective."</p>
-                            <div class="flex items-center"> <i class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star text-yellow-300 mr-1"></i> <i
-                                    class="fas fa-star-half-alt text-yellow-300"></i> </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-pagination"></div>
-                <div class="swiper-button-prev"></div>
-                <div class="swiper-button-next"></div>
-            </div>
-        </div>
-    </section>  -->
-    
-    <!-- Contact Section -->
-    <section id="contact" class="py-20 bg-gray-50 dark:bg-gray-900">
-        <div class="container mx-auto px-6 max-w-7xl">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 dark:text-white mb-6" data-aos="fade-up">Get in
-                    Touch</h2>
-                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto" data-aos="fade-up"
-                    data-aos-delay="100">Have questions or ready to start your Quranic journey? Contact us today!</p>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12"> <!-- Contact Form -->
-                <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg" data-aos="fade-right">
-                    <form id="contactForm">
-                        <div class="mb-6"> <label for="name"
-                                class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Full Name</label> <input
-                                type="text" id="name" name="name"
-                                class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
-                                required> </div>
-                        <div class="mb-6"> <label for="email"
-                                class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Email Address</label>
-                            <input type="email" id="email" name="email"
-                                class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
-                                required>
-                        </div>
-                        <div class="mb-6"> <label for="message"
-                                class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Your Message</label>
-                            <textarea id="message" name="message" rows="5"
-                                class="w-full p-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary"
-                                required></textarea>
-                        </div> <button type="submit"
-                            class="w-full bg-primary text-white px-6 py-4 rounded-lg hover:bg-primary-dark transition-all duration-300 hover:shadow-lg text-lg font-medium">Send
-                            Message</button>
-                    </form>
-                </div> <!-- Contact Info -->
-                <div class="space-y-8" data-aos="fade-left">
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
-                        <div class="flex items-center mb-4">
-                            <div class="bg-primary/10 p-4 rounded-xl mr-4"> <i
-                                    class="fas fa-envelope text-primary text-xl"></i> </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Email Us</h3>
-                                <p class="text-gray-600 dark:text-gray-300">support@alqalamacademy.com</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
-                        <div class="flex items-center mb-4">
-                            <div class="bg-primary/10 p-4 rounded-xl mr-4"> <i
-                                    class="fas fa-phone text-primary text-xl"></i> </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Call Us</h3>
-                                <p class="text-gray-600 dark:text-gray-300">+1 (800) 123-4567</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
-                        <div class="flex items-center mb-4">
-                            <div class="bg-primary/10 p-4 rounded-xl mr-4"> <i
-                                    class="fas fa-map-marker-alt text-primary text-xl"></i> </div>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Visit Us</h3>
-                                <p class="text-gray-600 dark:text-gray-300">123 Quran Street, Knowledge City, QC</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section> 
     
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12">
@@ -662,6 +335,7 @@
             </div>
         </div>
     </footer> <!-- Scripts -->
+    
     <script> // Initialize AOS 
         AOS.init({ once: true, offset: 100, }); // Theme Toggle 
         const themeToggle = document.getElementById('themeToggle'); themeToggle.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); }); // Load theme from localStorage 

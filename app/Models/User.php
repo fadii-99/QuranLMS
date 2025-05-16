@@ -56,30 +56,20 @@ class User extends Authenticatable
     //
 
     // Teacher → their current students
-    public function assignedStudents()
+    public function teacherStudent()
     {
-        return $this->belongsToMany(
-                    self::class,
-                    'teacher_student',
-                    'teacher_id',
-                    'student_id'
-                )
-                ->withPivot('active','created_at')
-                ->wherePivot('active', true)
-                ->using(TeacherStudent::class);
+        return $this->hasOne(TeacherStudent::class, 'student_id');
     }
 
-    // Student → their current teacher(s) (usually one)
-    public function assignedTeachers()
-    {
-        return $this->belongsToMany(
-                    self::class,
-                    'teacher_student',
-                    'student_id',
-                    'teacher_id'
-                )
-                ->withPivot('active','created_at')
-                ->wherePivot('active', true)
-                ->using(TeacherStudent::class);
-    }
+    public function students1()
+{
+    return $this->belongsToMany(
+        User::class,
+        'teacher_students',   // pivot table
+        'teacher_id',         // this model’s key on the pivot
+        'student_id'          // related model’s key on the pivot
+    )->withTimestamps();
+}
+
+    
 }

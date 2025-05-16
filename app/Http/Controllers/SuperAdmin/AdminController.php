@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -58,6 +59,12 @@ class AdminController extends Controller
             'academy_name' => 'required|string|max:255',
             'password' => 'nullable|string|min:8',
         ]);
+        
+        // Cast the boolean values
+        $request->merge([
+            'is_paid' => (bool)$request->is_paid,
+            'is_blocked' => (bool)$request->is_blocked,
+        ]);
 
         $admin = User::findOrFail($id);
         if ($request->password) {
@@ -81,9 +88,7 @@ class AdminController extends Controller
 
         $admin->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Admin updated successfully'
-        ]);
+        return redirect()->route('superadmin.admins.index')
+            ->with('success', 'Admin updated successfully');
     }
 }
