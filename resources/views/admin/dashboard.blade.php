@@ -18,7 +18,6 @@
       $cards = [
         ['label'=>'Teachers', 'count'=>$teachers, 'icon'=>'fas fa-chalkboard-teacher','bg'=>'from-green-500 to-green-600'],
         ['label'=>'Students', 'count'=>$students, 'icon'=>'fas fa-user-graduate',      'bg'=>'from-yellow-500 to-yellow-600'],
-        ['label'=>'Classes',  'count'=>$classes,  'icon'=>'fas fa-school',             'bg'=>'from-blue-500 to-blue-600'],
         ['label'=>'Requests', 'count'=>$requests->count(),'icon'=>'fas fa-question-circle','bg'=>'from-red-500 to-red-600'],
       ];
     @endphp

@@ -18,9 +18,7 @@
     @php
       $cards = [
         ['label'=>'My Students',      'count'=>$students->count(),      'icon'=>'fas fa-user-friends',      'bg'=>'from-indigo-500 to-indigo-600'],
-        ['label'=>'Total Classes',    'count'=>$totalClasses,  'icon'=>'fas fa-calendar-alt',      'bg'=>'from-green-500 to-green-600'],
-        ['label'=>"Today's Classes",  'count'=>$classesToday,  'icon'=>'fas fa-chalkboard',         'bg'=>'from-yellow-500 to-yellow-600'],
-        ['label'=>'Recent Classes',   'count'=>$recentClasses->count(), 'icon'=>'fas fa-history','bg'=>'from-blue-500 to-blue-600'],
+        ['label'=>"Total Classes",  'count'=>$totalClasses,  'icon'=>'fas fa-chalkboard',         'bg'=>'from-yellow-500 to-yellow-600'],
       ];
     @endphp
 

@@ -13,13 +13,13 @@ class DashboardController extends Controller
     public function index()
     {
 
-        $classes  = 1;
         $user =Auth::user();
-        $teachers = User::where('admin_id',$user->id )->where('role', User::ROLE_TEACHER)->count();
-        $students = User::where('admin_id',$user->id )->where('role', User::ROLE_STUDENT)->count();
-        // $classes  = Klass::count();
+        $teachersData = User::where('admin_id',$user->id )->where('role', User::ROLE_TEACHER)->get();
+        $teachers = $teachersData->count();
+        $studentsData = User::where('admin_id',$user->id )->where('role', User::ROLE_STUDENT)->get();
+        $students = $studentsData->count();
+        $students = User::where('admin_id',$user->id )->where('role', )->count();
 
-        // pending requests (example: teacher requests)
         $requests = collect([
             [
             'id' => 1,
@@ -41,6 +41,6 @@ class DashboardController extends Controller
             ]
         ]);
 
-        return view('admin.dashboard', compact('teachers','students','classes','requests'));
+        return view('admin.dashboard', compact('teachers','students','requests'));
     }
 }

@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\ClassSchedule;
-use App\Models\Student;
 use App\Models\User;
 
 class DashboardController extends Controller
@@ -15,7 +13,6 @@ class DashboardController extends Controller
         $teacher = auth()->user();
 
         $students     = User::where('role', USER::ROLE_STUDENT)->get();
-        $classesToday = 1;
         $totalClasses = 10;
         $recentClasses = User::where('id', 1)
             ->take(5)
@@ -23,9 +20,8 @@ class DashboardController extends Controller
 
         return view('teacher.dashboard', compact(
             'students',
-            'classesToday',
             'totalClasses',
-            'recentClasses'
+            'recentClasses',
         ));
     }
 }

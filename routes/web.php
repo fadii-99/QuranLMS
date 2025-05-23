@@ -15,9 +15,12 @@ use App\Http\Controllers\SuperAdmin\PaymentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\SubjectController;
 
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
 use App\Http\Controllers\Teacher\StudentController as teacherStudentController;
+
+use App\Http\Controllers\Student\DashboardController as StudentDashboard;
 
 Route::get('/', function () {
      return view('welcome');
@@ -84,6 +87,11 @@ Route::prefix('admin')
                   ->name('student.assign-teacher');
             Route::post('student/remove/teacher', [StudentController::class, 'removeTeacher'])
                   ->name('student.remove-teacher');
+          
+            Route::get('subjects', [SubjectController::class, 'index'])
+                  ->name('subject.index');
+            Route::post('subject/new', [SubjectController::class, 'create'])
+                  ->name('subject.create');
 });
 
 
@@ -100,6 +108,18 @@ Route::prefix('teacher')
 
           Route::get('students', [teacherStudentController::class, 'studentsList'])
                ->name('students.index');
+
+
+});
+
+
+
+Route::prefix('student')
+     ->name('student.')
+     ->middleware(['auth', 'role:' . \App\Models\User::ROLE_STUDENT])
+     ->group(function () {
+          Route::get('dashboard', [StudentDashboard::class, 'index'])
+               ->name('dashboard');
 
 
 
