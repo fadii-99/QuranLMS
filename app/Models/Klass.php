@@ -5,10 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Subject extends Model
+class Klass extends Model
 {
     use HasFactory;
-     protected $fillable = [
-        'name', 'admin_id', 'is_active'
-    ];
 }

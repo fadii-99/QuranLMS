@@ -28,6 +28,7 @@ return new class extends Migration
               ->nullable()
               ->constrained('users')
               ->onDelete('set null');
+
             
 
             $table->boolean('is_active')->default(true);

@@ -73,6 +73,10 @@ Route::prefix('admin')
                   ->name('teacher.index');
             Route::post('teacher/new', [TeacherController::class, 'create'])
                   ->name('teacher.create');
+            Route::post('teacher/assign-subject', [TeacherController::class, 'assignSubject'])
+                  ->name('teacher.assign-subject');
+            Route::post('teacher/remove-subject', [TeacherController::class, 'removeSubject'])
+                  ->name('teacher.remove-subject');
 
             Route::get('students', [StudentController::class, 'index'])
                   ->name('student.index');
@@ -92,6 +96,10 @@ Route::prefix('admin')
                   ->name('subject.index');
             Route::post('subject/new', [SubjectController::class, 'create'])
                   ->name('subject.create');
+            Route::post('subject/update', [SubjectController::class, 'update'])
+                  ->name('subject.update');
+            Route::post('subject/delete', [SubjectController::class, 'destroy'])
+                  ->name('subject.delete');
 });
 
 

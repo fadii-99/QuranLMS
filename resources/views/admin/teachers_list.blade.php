@@ -107,6 +107,48 @@
     </div>
   </div>
 
+
+  {{-- Assign Subject Modal --}}
+<div id="assign-subject-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white dark:bg-gray-700 rounded-2xl p-6 w-full max-w-md shadow-xl relative">
+        <button id="close-assign-modal"
+            class="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+
+        <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+            Assign Subject to <span id="assign-teacher-name" class="font-semibold"></span>
+        </h3>
+
+        <div id="remove-subject-section" class="mb-4 hidden">
+            <p class="mb-2 text-gray-600 dark:text-gray-300">Current Subject:
+                <span id="current-subject-name" class="font-semibold"></span>
+            </p>
+            <button id="remove-subject-btn" data-pivot-id=""
+                class="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 text-sm">
+                Remove Subject
+            </button>
+        </div>
+
+        <div class="max-h-80 overflow-y-auto space-y-2">
+            @forelse($subjects as $subject)
+                <div class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-600 rounded-lg">
+                    <span class="text-gray-800 dark:text-gray-200">{{ $subject->name }}</span>
+                    <button
+                        class="assign-subject-btn text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                        data-subject-id="{{ $subject->id }}" data-subject-name="{{ $subject->name }}">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            @empty
+                <p class="text-gray-500 dark:text-gray-400 text-center">No subjects available</p>
+            @endforelse
+        </div>
+    </div>
+</div>
+
+
   {{-- Teachers Data Table --}}
   <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden">
     <table class="min-w-full">
@@ -127,6 +169,17 @@
         <td class="px-4 py-2">{{ $teacher->students_count }}</td>
         <td class="px-4 py-2">{{ $teacher->created_at->format('Y-m-d') }}</td>
         <td class="px-4 py-2 flex space-x-2">
+          <button class="assign-subject text-green-500 hover:text-green-700"
+    data-teacher-id="{{ $teacher->id }}"
+    data-teacher-name="{{ $teacher->name }}"
+    @if($teacher->subjectTeacher)
+        data-pivot-id="{{ $teacher->subjectTeacher->id }}"
+        data-subject-id="{{ $teacher->subjectTeacher->subject_id }}"
+        data-subject-name="{{ $teacher->subjectTeacher->subject->name }}"
+    @endif
+>
+    <i class="fas fa-book-open"></i>
+</button>
           <button class="edit-teacher text-blue-500 hover:text-blue-700" data-id="{{ $teacher->id }}"
           data-name="{{ $teacher->name }}" data-email="{{ $teacher->email }}">
           <i class="fas fa-edit"></i>
@@ -227,6 +280,114 @@
       cancelDeleteBtn.addEventListener('click', () => {
         deleteModal.classList.add('hidden');
       });
+
+
+      // Assign Subject Modal
+const assignModal = document.getElementById('assign-subject-modal');
+const closeAssignBtn = document.getElementById('close-assign-modal');
+const assignButtons = document.querySelectorAll('.assign-subject');
+const assignSubjectBtns = document.querySelectorAll('.assign-subject-btn');
+const removeSection = document.getElementById('remove-subject-section');
+const currentNameEl = document.getElementById('current-subject-name');
+const removeBtn = document.getElementById('remove-subject-btn');
+const teacherNameEl = document.getElementById('assign-teacher-name');
+
+// Open modal, populate data
+assignButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const teacherId = btn.dataset.teacherId;
+        const teacherName = btn.dataset.teacherName;
+        const pivotId = btn.dataset.pivotId;
+        const subjectName = btn.dataset.subjectName;
+
+        teacherNameEl.textContent = teacherName;
+
+        // If already assigned, show remove section
+        if (pivotId) {
+            removeSection.classList.remove('hidden');
+            currentNameEl.textContent = subjectName;
+            removeBtn.dataset.pivotId = pivotId;
+        } else {
+            removeSection.classList.add('hidden');
+        }
+
+        // stash teacherId on each "assign-subject-btn"
+        assignSubjectBtns.forEach(a => {
+            a.dataset.teacherId = teacherId;
+        });
+
+        assignModal.classList.remove('hidden');
+    });
+});
+
+// Close modal
+closeAssignBtn.addEventListener('click', () => {
+    assignModal.classList.add('hidden');
+});
+
+// Assign a new subject
+assignSubjectBtns.forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const teacherId = btn.dataset.teacherId;
+        const subjectId = btn.dataset.subjectId;
+        try {
+            const res = await fetch('{{ route('admin.teacher.assign-subject') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    teacher_id: teacherId,
+                    subject_id: subjectId
+                })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                showToast('success', data.message);
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                showToast('error', data.message);
+            }
+        } catch (err) {
+            showToast('error', 'Network error, please try again.');
+        }
+    });
+});
+
+// Remove current subject (by pivot id)
+removeBtn.addEventListener('click', async () => {
+    const pivotId = removeBtn.dataset.pivotId;
+    try {
+        const res = await fetch('{{ route('admin.teacher.remove-subject') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                pivot_id: pivotId
+            })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            showToast('success', data.message);
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showToast('error', data.message);
+        }
+    } catch (err) {
+        showToast('error', 'Could not remove subject. Try again.');
+    }
+});
+
+// Close modal on outside click
+window.addEventListener('click', (e) => {
+    if (e.target === assignModal) assignModal.classList.add('hidden');
+});
+
 
       // Close modals when clicking outside
       window.addEventListener('click', (e) => {

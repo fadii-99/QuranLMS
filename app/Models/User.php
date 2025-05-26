@@ -18,9 +18,17 @@ class User extends Authenticatable
     const ROLE_PARENT      = 'parent';
 
     protected $fillable = [
-        'name','email','password','role','academy_name',
-        'is_active','is_verified','is_paid','is_blocked',
-        'admin_id','remember_token'
+        'name',
+        'email',
+        'password',
+        'role',
+        'academy_name',
+        'is_active',
+        'is_verified',
+        'is_paid',
+        'is_blocked',
+        'admin_id',
+        'remember_token'
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -28,8 +36,8 @@ class User extends Authenticatable
     // Automatically hash passwords
     public function setPasswordAttribute($pw)
     {
-        $this->attributes['password'] = Hash::needsRehash($pw) 
-            ? Hash::make($pw) 
+        $this->attributes['password'] = Hash::needsRehash($pw)
+            ? Hash::make($pw)
             : $pw;
     }
 
@@ -41,14 +49,14 @@ class User extends Authenticatable
     public function teachers()
     {
         return $this->hasMany(self::class, 'admin_id')
-                    ->where('role', self::ROLE_TEACHER);
+            ->where('role', self::ROLE_TEACHER);
     }
 
     // Super- or Admin → Students they created
     public function students()
     {
         return $this->hasMany(self::class, 'admin_id')
-                    ->where('role', self::ROLE_STUDENT);
+            ->where('role', self::ROLE_STUDENT);
     }
 
     //
@@ -62,14 +70,16 @@ class User extends Authenticatable
     }
 
     public function students1()
-{
-    return $this->belongsToMany(
-        User::class,
-        'teacher_students',   // pivot table
-        'teacher_id',         // this model’s key on the pivot
-        'student_id'          // related model’s key on the pivot
-    )->withTimestamps();
-}
-
-    
+    {
+        return $this->belongsToMany(
+            User::class,
+            'teacher_students',   // pivot table
+            'teacher_id',         // this model’s key on the pivot
+            'student_id'          // related model’s key on the pivot
+        )->withTimestamps();
+    }
+    public function subjects()
+    {
+        return $this->hasMany(Subject::class, 'admin_id');
+    }
 }

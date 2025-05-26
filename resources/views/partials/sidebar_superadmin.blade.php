@@ -24,6 +24,10 @@
                 class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('admin.student.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
                 <i class="fas fa-user-graduate  mr-3"></i> Students
             </a>
+            <a href="{{ route('admin.subject.index') }}"
+                class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('admin.subject.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
+                <i class="fas fa-book mr-3"></i> Subjects
+            </a>
         </nav>
     @elseif(auth()->check() && auth()->user()->role === App\Models\User::ROLE_SUPER_ADMIN)
         <nav class="flex-1">

@@ -14,44 +14,56 @@ class SubjectController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $subjects = Subject::all();
+        $subjects = Subject::where('admin_id', $user->id)->orderByDesc('created_at')
+            ->paginate(10);;
         return view('admin.subject_list', compact('subjects'));
     }
 
     public function create(Request $request)
     {
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
+        $user = Auth::user();
+
         $subject = Subject::create([
-            'name' => $validated['name']
+            'name' => $validated['name'],
+            'admin_id' => $user->id
         ]);
 
-        return redirect()->route('admin.subjects.index')
+        return redirect()->route('admin.subject.index')
             ->with('success', 'Subject created successfully');
     }
 
-    public function update(Request $request, Subject $subject)
+    public function update(Request $request)
     {
         $validated = $request->validate([
+            'id'   => 'required|integer|exists:subjects,id',
             'name' => 'required|string|max:255',
         ]);
 
+        $subject = Subject::findOrFail($validated['id']);
+        $is_active = $request->has('is_active') ? 1 : false;
+
         $subject->update([
-            'name' => $validated['name']
+            'name' => $validated['name'],
+            'is_active' => $is_active,
         ]);
 
-        return redirect()->route('admin.subjects.index')
+        return redirect()->route('admin.subject.index')
             ->with('success', 'Subject updated successfully');
     }
 
+
     public function destroy(Request $request)
     {
-
-        Subject::destroy($request->id);
-
-        return redirect()->route('admin.subjects.index')
-            ->with('success', 'Subject deleted successfully');
+        try {
+            Subject::destroy((int) $request->subject_id);
+            return response()->json(['success' => true, 'message' => 'Subject deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to delete subject'], 500);
+        }
     }
 }
