@@ -104,7 +104,7 @@ public function teachersSS()
         'teacher_students',   // Pivot table
         'student_id',         // Foreign key on pivot (for this model)
         'teacher_id'          // Related key on pivot
-    )->where('role', self::ROLE_TEACHER);
+    )->where('role', self::ROLE_TEACHER)->withPivot('id');
 }
 
 }

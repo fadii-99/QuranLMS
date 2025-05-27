@@ -131,34 +131,48 @@ class StudentController extends Controller
         ]);
     }
 
-    public function removeTeacher(Request $request)
-    {
-        dd($request->all());
-        $validator = Validator::make($request->all(), [
-            'pivot_id' => 'required|integer|exists:teacher_students,id',
-        ]);
+   public function removeTeacher(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'pivot_id' => 'required|integer|exists:teacher_students,id',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => $validator->errors()->first(),
-            ], 422);
-        }
-
-        $deleted = TeacherStudent::destroy($request->pivot_id);
-
-        if (! $deleted) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to remove teacher assignment',
-            ], 500);
-        }
-
+    if ($validator->fails()) {
         return response()->json([
-            'success' => true,
-            'message' => 'Teacher removed successfully',
-        ]);
+            'success' => false,
+            'message' => $validator->errors()->first(),
+        ], 422);
     }
+
+    // 1. Find the TeacherStudent record
+    $teacherStudent = TeacherStudent::find($request->pivot_id);
+    if (! $teacherStudent) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Assignment not found',
+        ], 404);
+    }
+
+    $studentId = $teacherStudent->student_id;
+    $teacherId = $teacherStudent->teacher_id;
+
+    // 2. Find all teacher_subject IDs for this teacher
+    $teacherSubjectIds = teacher_subject::where('teacher_id', $teacherId)->pluck('id');
+
+    // 3. Remove all StudentSubject assignments for this student and these teacher_subjects
+    \App\Models\StudentSubject::where('student_id', $studentId)
+        ->whereIn('subject_id', $teacherSubjectIds)
+        ->delete();
+
+    // 4. Remove the teacher-student assignment
+    $teacherStudent->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Teacher and related subject assignments removed successfully',
+    ]);
+}
+
 
 
     // In StudentController.php

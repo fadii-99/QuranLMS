@@ -121,11 +121,11 @@
             </h3>
 
             <div id="remove-teacher-section" class="mb-4">
-    <p class="mb-2 text-gray-600 dark:text-gray-300 font-semibold">Currently Assigned Teachers:</p>
-    <div id="current-teacher-list" class="space-y-2">
-        {{-- Filled by JS --}}
-    </div>
-</div>
+                <p class="mb-2 text-gray-600 dark:text-gray-300 font-semibold">Currently Assigned Teachers:</p>
+                <div id="current-teacher-list" class="space-y-2">
+                    {{-- Filled by JS --}}
+                </div>
+            </div>
 
             <div class="max-h-80 overflow-y-auto space-y-2">
                 @forelse($teachers as $teacher)
@@ -216,7 +216,7 @@
                                     return [
                                         'id' => $t->id,
                                         'name' => $t->name,
-                                        'pivot_id' => $t->pivot->id ?? null, // required for AJAX remove
+                                        'pivot_id' => $t->pivot->id ?? null, // This will now be set!
                                     ];
                                 })
                                 ->toArray()
@@ -239,7 +239,11 @@
                             @endif
                         </td>
                         <td class="px-4 py-2">
-                            @if ($student->subjectsSS->count())
+                            @if (!$student->teachersSS || !$student->teachersSS->count())
+                                <span class="text-red-500 font-semibold">Assign Teacher</span>
+                            @elseif ($student->teachersSS->count() && !$student->subjectsSS->count())
+                                <span class="text-red-500 font-semibold">Assign Subject</span>
+                            @elseif ($student->subjectsSS->count())
                                 <div class="flex flex-wrap gap-2">
                                     @foreach ($student->subjectsSS as $subject)
                                         <span class="px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs">
@@ -255,15 +259,17 @@
                         <td class="px-4 py-2 flex space-x-2">
                             <button class="assign-teacher text-green-500 hover:text-green-700" title="Assign Teacher"
                                 data-student-id="{{ $student->id }}" data-student-name="{{ $student->name }}"
-                               data-assigned-teachers='@json($assignedTeachersForModal)'
->
+                                data-assigned-teachers='@json($assignedTeachersForModal)'>
                                 <i class="fas fa-chalkboard-teacher"></i>
                             </button>
-                            <button class="text-purple-500 hover:text-purple-700 open-assign-subject"
-                                title="Assign Subject" data-student-id="{{ $student->id }}"
-                                data-assigned-subjects='@json($assignedSubjectsForModal)'>
-                                <i class="fas fa-book-open"></i>
-                            </button>
+                            @if ($student->teachersSS && $student->teachersSS->count())
+                                <button class="text-purple-500 hover:text-purple-700 open-assign-subject"
+                                    title="Assign Subject" data-student-id="{{ $student->id }}"
+                                    data-assigned-subjects='@json($assignedSubjectsForModal)'>
+                                    <i class="fas fa-book-open"></i>
+                                </button>
+                            @endif
+
                             <button class="edit-student text-blue-500 hover:text-blue-700" data-id="{{ $student->id }}"
                                 data-name="{{ $student->name }}" data-email="{{ $student->email }}"
                                 data-active="{{ $student->is_active }}">
@@ -512,73 +518,80 @@
             const closeAssignBtn = document.getElementById('close-assign-modal');
             const assignButtons = document.querySelectorAll('.assign-teacher');
             const assignTeacherBtns = document.querySelectorAll('.assign-teacher-btn');
-           
+
             assignButtons.forEach(btn => {
-    btn.addEventListener('click', function() {
-        const studentId = btn.dataset.studentId;
-        const studentName = btn.dataset.studentName;
-        let assignedTeachers = [];
-        try {
-            assignedTeachers = btn.dataset.assignedTeachers && btn.dataset.assignedTeachers !== "null"
-                ? JSON.parse(btn.dataset.assignedTeachers)
-                : [];
-        } catch (e) {
-            assignedTeachers = [];
-        }
-        document.getElementById('assign-student-name').textContent = studentName;
-        const teacherList = document.getElementById('current-teacher-list');
-        teacherList.innerHTML = '';
-        if (assignedTeachers.length > 0) {
-            assignedTeachers.forEach(teacher => {
-                teacherList.innerHTML += `
-                    <div class="flex justify-between items-center p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                        <span class="text-green-900 dark:text-green-200 text-xs font-semibold">${teacher.name}</span>
+                btn.addEventListener('click', function() {
+                    const studentId = btn.dataset.studentId;
+                    const studentName = btn.dataset.studentName;
+                    let assignedTeachers = [];
+                    try {
+                        assignedTeachers = btn.dataset.assignedTeachers && btn.dataset
+                            .assignedTeachers !== "null" ?
+                            JSON.parse(btn.dataset.assignedTeachers) : [];
+                    } catch (e) {
+                        assignedTeachers = [];
+                    }
+                    document.getElementById('assign-student-name').textContent = studentName;
+                    const teacherList = document.getElementById('current-teacher-list');
+                    teacherList.innerHTML = '';
+                    if (assignedTeachers.length > 0) {
+                        assignedTeachers.forEach(teacher => {
+                            teacherList.innerHTML += `
+                    <div class="flex justify-between items-center p-2 bg-gray-200 dark:bg-gray-800 rounded-lg">
+                        <span class="text-green-900 dark:text-white-200 text-xs font-semibold">${teacher.name}</span>
                         <button class="remove-assigned-teacher-btn text-red-500 ml-2" data-pivot-id="${teacher.pivot_id}">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                 `;
-            });
-        } else {
-            teacherList.innerHTML = `<span class="text-gray-500">None assigned</span>`;
-        }
-        assignTeacherBtns.forEach(a => {
-            a.dataset.studentId = studentId;
-        });
-        assignModal.classList.remove('hidden');
-
-        // Bind remove-teacher buttons
-        teacherList.querySelectorAll('.remove-assigned-teacher-btn').forEach(rbtn => {
-            rbtn.onclick = async function() {
-                const pivotId = this.dataset.pivotId;
-                try {
-                    const res = await fetch('{{ route('admin.student.remove-teacher') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({ pivot_id: pivotId })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        showToast('success', data.message);
-                        // Remove pill from UI instantly
-                        this.closest('div').remove();
-                        // If none left, show message
-                        if (!teacherList.querySelector('.remove-assigned-teacher-btn')) {
-                            teacherList.innerHTML = `<span class="text-gray-500">None assigned</span>`;
-                        }
+                        });
                     } else {
-                        showToast('error', data.message);
+                        teacherList.innerHTML = `<span class="text-gray-500">None assigned</span>`;
                     }
-                } catch (err) {
-                    showToast('error', 'Could not remove teacher. Try again.');
-                }
-            };
-        });
-    });
-});
+                    assignTeacherBtns.forEach(a => {
+                        a.dataset.studentId = studentId;
+                    });
+                    assignModal.classList.remove('hidden');
+
+                    // Bind remove-teacher buttons
+                    teacherList.querySelectorAll('.remove-assigned-teacher-btn').forEach(rbtn => {
+                        rbtn.onclick = async function() {
+                            const pivotId = this.dataset.pivotId;
+                            try {
+                                const res = await fetch(
+                                    '{{ route('admin.student.remove-teacher') }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                        },
+                                        body: JSON.stringify({
+                                            pivot_id: pivotId
+                                        })
+                                    });
+                                const data = await res.json();
+                                if (data.success) {
+                                    showToast('success', data.message);
+                                    // Remove pill from UI instantly
+                                    this.closest('div').remove();
+                                    setTimeout(() => location.reload(), 1000);
+                                    // If none left, show message
+                                    if (!teacherList.querySelector(
+                                            '.remove-assigned-teacher-btn')) {
+                                        teacherList.innerHTML =
+                                            `<span class="text-gray-500">None assigned</span>`;
+                                    }
+                                } else {
+                                    showToast('error', data.message);
+                                }
+                            } catch (err) {
+                                showToast('error',
+                                    'Could not remove teacher. Try again.');
+                            }
+                        };
+                    });
+                });
+            });
 
 
             closeAssignBtn.addEventListener('click', () => {
@@ -623,8 +636,7 @@
                     try {
                         assignedSubjects = this.dataset.assignedSubjects && this.dataset
                             .assignedSubjects !== "null" ?
-                            JSON.parse(this.dataset.assignedSubjects) :
-                            [];
+                            JSON.parse(this.dataset.assignedSubjects) : [];
                     } catch (e) {
                         assignedSubjects = [];
                     }
