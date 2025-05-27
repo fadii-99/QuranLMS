@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Subject;
+use App\Models\teacher_subject;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -44,8 +45,24 @@ class SubjectController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $subject = Subject::findOrFail($validated['id']);
         $is_active = $request->has('is_active') ? 1 : false;
+        
+        if (!$is_active) {
+            $assignedCount = teacher_subject::where('subject_id', $validated['id'])->count();
+            if ($assignedCount > 0 && !$is_active) {
+            return redirect()->back()
+                ->with('error', 'Cannot deactivate subject with assigned teachers');
+        }
+        }
+        $subject = Subject::findOrFail($validated['id']);
+
+
+        
+
+        if ($subject->admin_id !== Auth::id()) {
+            return redirect()->route('admin.subject.index')
+                ->with('error', 'You do not have permission to update this subject');
+        }
 
         $subject->update([
             'name' => $validated['name'],

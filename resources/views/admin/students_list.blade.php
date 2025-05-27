@@ -538,7 +538,7 @@
                         assignedTeachers.forEach(teacher => {
                             teacherList.innerHTML += `
                     <div class="flex justify-between items-center p-2 bg-gray-200 dark:bg-gray-800 rounded-lg">
-                        <span class="text-green-900 dark:text-white-200 text-xs font-semibold">${teacher.name}</span>
+                        <span class="text-sm text-gray-100">${teacher.name}</span>
                         <button class="remove-assigned-teacher-btn text-red-500 ml-2" data-pivot-id="${teacher.pivot_id}">
                             <i class="fas fa-times"></i>
                         </button>
