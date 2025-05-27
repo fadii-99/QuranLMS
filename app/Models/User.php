@@ -80,6 +80,31 @@ class User extends Authenticatable
     }
     public function subjects()
     {
-        return $this->hasMany(Subject::class, 'admin_id');
+        return $this->belongsToMany(
+            Subject::class,     // related model
+            'teacher_subjects',  // pivot table
+            'teacher_id',       // current model key on pivot
+            'subject_id'        // related model key on pivot
+        );
     }
+    public function subjectStud()
+    {
+        return $this->belongsToMany(teacher_subject::class, 'student_subjects', 'student_id', 'subject_id');
+    }
+    public function subjectsSS()
+    {
+        return $this->belongsToMany(Subject::class, 'student_subjects', 'student_id', 'subject_id')->withPivot('id');
+    }
+
+    // STUDENT: All teachers assigned to this student (many-to-many)
+public function teachersSS()
+{
+    return $this->belongsToMany(
+        self::class,
+        'teacher_students',   // Pivot table
+        'student_id',         // Foreign key on pivot (for this model)
+        'teacher_id'          // Related key on pivot
+    )->where('role', self::ROLE_TEACHER);
+}
+
 }

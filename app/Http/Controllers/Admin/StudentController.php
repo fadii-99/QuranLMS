@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TeacherStudent;
+use App\Models\teacher_subject;
+use App\Models\StudentSubject;
 use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
@@ -14,18 +16,35 @@ class StudentController extends Controller
     public function index()
     {
         $user = Auth::user();
+
+        // Load students with their assigned teachers AND subjects (with teacher & subject relations)
         $students = User::where('admin_id', $user->id)
             ->where('role', User::ROLE_STUDENT)
-            ->with('teacherStudent.teacher')
+            ->with([
+                'teacherStudent.teacher',
+                'teachersSS',
+                'subjectStud.subject',     // for assigning subjects
+                'subjectStud.teacher',     // for assigning subjects
+                'subjectsSS',              // for displaying assigned subjects in the table
+            ])
             ->orderByDesc('created_at')
             ->paginate(10);
 
+        // All teachers for this admin
         $teachers = User::where('admin_id', $user->id)
             ->where('role', User::ROLE_TEACHER)
             ->get();
 
-        return view('admin.students_list', compact('students', 'teachers'));
+        // All subject-teacher pairs (for modal dropdown) 
+        $subjects = teacher_subject::with(['teacher', 'subject'])
+            ->whereHas('teacher', function ($q) use ($user) {
+                $q->where('admin_id', $user->id);
+            })
+            ->get();
+
+        return view('admin.students_list', compact('students', 'teachers', 'subjects'));
     }
+
 
 
 
@@ -94,12 +113,12 @@ class StudentController extends Controller
         }
 
         // Prevent multiple teachers per student
-        if (TeacherStudent::where('student_id', $request->student_id)->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Student already has a teacher assigned',
-            ], 422);
-        }
+        // if (TeacherStudent::where('student_id', $request->student_id)->exists()) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Student already has a teacher assigned',
+        //     ], 422);
+        // }
 
         TeacherStudent::create([
             'teacher_id' => $request->teacher_id,
@@ -114,6 +133,7 @@ class StudentController extends Controller
 
     public function removeTeacher(Request $request)
     {
+        dd($request->all());
         $validator = Validator::make($request->all(), [
             'pivot_id' => 'required|integer|exists:teacher_students,id',
         ]);
@@ -138,5 +158,101 @@ class StudentController extends Controller
             'success' => true,
             'message' => 'Teacher removed successfully',
         ]);
+    }
+
+
+    // In StudentController.php
+
+    public function showAssignSubjectModal($studentId)
+    {
+        $subjects = teacher_subject::with(['teacher', 'subject'])->get();
+        $student = User::findOrFail($studentId);
+        return view('admin.assign_subject_modal', compact('subjects', 'student'));
+    }
+
+    public function assignSubjectToStudent(Request $request, $studentId)
+    {
+        $student = User::findOrFail($studentId);
+        $student->subjects()->attach($request->input('teacher_subject_id'));
+        return redirect()->route('students.list')->with('success', 'Subject assigned!');
+    }
+
+    // Assign a subject to a student
+    public function assignSubject(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'student_id' => 'required|exists:users,id',
+            'subject_id' => 'required|exists:subjects,id',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
+        }
+
+        // Prevent duplicate assignment
+        if (StudentSubject::where('student_id', $request->student_id)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Subject already assigned to this student'], 422);
+        }
+        if (StudentSubject::where('student_id', $request->student_id)->where('subject_id', $request->subject_id)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Subject already assigned to this student'], 422);
+        }
+
+        StudentSubject::create([
+            'student_id' => $request->student_id,
+            'subject_id' => $request->subject_id,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Subject assigned successfully']);
+    }
+
+
+    // Remove a subject assignment
+    public function removeSubject(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'pivot_id' => 'required|integer|exists:student_subjects,id',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
+        }
+
+        $deleted = StudentSubject::destroy($request->pivot_id);
+
+        if (! $deleted) {
+            return response()->json(['success' => false, 'message' => 'Failed to remove subject assignment'], 500);
+        }
+        return response()->json(['success' => true, 'message' => 'Subject removed successfully']);
+    }
+
+
+    // In StudentController.php
+
+    public function getSubjectsForStudent(Request $request)
+    {
+        $student_id = $request->input('student_id');
+
+        // Find the teacher assigned to this student
+        $teacherStudent = \App\Models\TeacherStudent::where('student_id', $student_id)->first();
+
+        if (!$teacherStudent) {
+            return response()->json(['subjects' => []]);
+        }
+
+        $teacher_id = $teacherStudent->teacher_id;
+
+        // Find all subjects assigned to this teacher (teacher_subject table)
+        $teacherSubjects = \App\Models\teacher_subject::with(['subject', 'teacher'])
+            ->where('teacher_id', $teacher_id)
+            ->get();
+
+        // Format for frontend
+        $data = $teacherSubjects->map(function ($ts) {
+            return [
+                'id' => $ts->id, // teacher_subject id
+                'subject_name' => $ts->subject->name ?? '',
+                'teacher_name' => $ts->teacher->name ?? '',
+            ];
+        })->values();
+
+        return response()->json(['subjects' => $data]);
     }
 }

@@ -3,7 +3,7 @@
 @section('title', 'Subject List')
 
 @section('content')
-    <div class="flex items-center justify-between mb-8 bg-white dark:bg-gray-700 shadow-lg rounded-xl p-4" data-aos="fade-down">
+    <div class="mb-8 bg-white dark:bg-gray-700 shadow-lg rounded-xl p-4">
         <h1 class="text-3xl font-extrabold text-gray-800 dark:text-gray-100 tracking-tight">Subjects</h1>
     </div>
     <div class="flex justify-between items-center mb-6">
@@ -50,7 +50,7 @@
                 <i class="fas fa-times text-xl"></i>
             </button>
             <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Edit Subject</h3>
-           <form id="edit-subject-form" action="{{ route('admin.subject.update') }}" method="POST" class="space-y-4">
+            <form id="edit-subject-form" action="{{ route('admin.subject.update') }}" method="POST" class="space-y-4">
                 @csrf
                 <input type="hidden" id="edit-id" name="id">
                 <div>
@@ -107,20 +107,18 @@
                     <tr class="border-t border-gray-200 dark:border-gray-600">
                         <td class="px-4 py-2">{{ $subject->name }}</td>
                         <td class="px-4 py-2">
-                            <span class="px-3 py-1 rounded-full text-sm {{ $subject->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                            <span
+                                class="px-3 py-1 rounded-full text-sm {{ $subject->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                 {{ $subject->is_active ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
                         <td class="px-4 py-2">{{ $subject->created_at->format('Y-m-d') }}</td>
                         <td class="px-4 py-2 flex space-x-2">
-                            <button class="edit-subject text-blue-500 hover:text-blue-700" 
-                                data-id="{{ $subject->id }}"
-                                data-name="{{ $subject->name }}"
-                                data-active="{{ $subject->is_active }}">
+                            <button class="edit-subject text-blue-500 hover:text-blue-700" data-id="{{ $subject->id }}"
+                                data-name="{{ $subject->name }}" data-active="{{ $subject->is_active }}">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="delete-subject text-red-500 hover:text-red-700" 
-                                data-id="{{ $subject->id }}"
+                            <button class="delete-subject text-red-500 hover:text-red-700" data-id="{{ $subject->id }}"
                                 data-name="{{ $subject->name }}">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -132,7 +130,8 @@
                             <div class="flex flex-col items-center justify-center space-y-3">
                                 <i class="fas fa-book text-4xl text-gray-400 dark:text-gray-500"></i>
                                 <p class="text-gray-500 dark:text-gray-400 text-lg font-medium">No subjects found</p>
-                                <p class="text-gray-400 dark:text-gray-500 text-sm">Click on "New Subject" button to add a subject</p>
+                                <p class="text-gray-400 dark:text-gray-500 text-sm">Click on "New Subject" button to add a
+                                    subject</p>
                             </div>
                         </td>
                     </tr>
@@ -221,7 +220,7 @@
                             subject_id: subjectId
                         })
                     });
-                    
+
                     const data = await res.json();
 
                     if (data.success) {

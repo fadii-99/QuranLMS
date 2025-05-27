@@ -5,7 +5,7 @@
 @section('content')
   <div class="flex items-center justify-between mb-8">
     <h1 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100">
-      Admin Dashboard
+      {{ $user->academy_name }} Dashboard
     </h1>
     <span class="text-sm text-gray-500 dark:text-gray-400">
       Welcome back, {{ auth()->user()->name }}

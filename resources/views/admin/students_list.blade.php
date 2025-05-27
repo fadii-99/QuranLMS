@@ -4,8 +4,7 @@
 @section('title', 'Student List')
 
 @section('content')
-    <div class="flex items-center justify-between mb-8 bg-white dark:bg-gray-700 shadow-lg rounded-xl p-4"
-        data-aos="fade-down">
+    <div class="mb-8 bg-white dark:bg-gray-700 shadow-lg rounded-xl p-4">
         <h1 class="text-3xl font-extrabold text-gray-800 dark:text-gray-100 tracking-tight">Students</h1>
     </div>
     <div class="flex justify-between items-center mb-6">
@@ -121,15 +120,12 @@
                 Assign Teacher to <span id="assign-student-name" class="font-semibold"></span>
             </h3>
 
-            <div id="remove-teacher-section" class="mb-4 hidden">
-                <p class="mb-2 text-gray-600 dark:text-gray-300">Current Teacher:
-                    <span id="current-teacher-name" class="font-semibold"></span>
-                </p>
-                <button id="remove-teacher-btn" data-pivot-id=""
-                    class="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 text-sm">
-                    Remove Teacher
-                </button>
-            </div>
+            <div id="remove-teacher-section" class="mb-4">
+    <p class="mb-2 text-gray-600 dark:text-gray-300 font-semibold">Currently Assigned Teachers:</p>
+    <div id="current-teacher-list" class="space-y-2">
+        {{-- Filled by JS --}}
+    </div>
+</div>
 
             <div class="max-h-80 overflow-y-auto space-y-2">
                 @forelse($teachers as $teacher)
@@ -148,6 +144,46 @@
         </div>
     </div>
 
+    {{-- Assign Subject Modal --}}
+    <div id="assignSubjectModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-700 rounded-2xl p-6 w-full max-w-md shadow-xl relative">
+            <button onclick="closeAssignSubjectModal()"
+                class="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+                Assign Subject
+            </h3>
+            <div id="current-subjects" class="mb-4">
+                <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">Currently Assigned:</h4>
+                <div id="assigned-subjects-list" class="space-y-2">
+                    {{-- Filled by JS --}}
+                </div>
+            </div>
+            <div class="max-h-80 overflow-y-auto space-y-2">
+                <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-2">Available Subjects:</h4>
+                @forelse($subjects as $ts)
+                    <div class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-600 rounded-lg">
+                        <span class="text-gray-800 dark:text-gray-200">
+                            {{ $ts->subject->name }}
+                            <span class="text-sm text-white-500">
+                                ({{ $ts->teacher->name ?? 'N/A' }})
+                            </span>
+                        </span>
+                        <button type="button" class="assign-subject-btn text-green-500 hover:text-green-700"
+                            data-subject-id="{{ $ts->id }}">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                @empty
+                    <p class="text-gray-500 dark:text-gray-400 text-center">No subjects available</p>
+                @endforelse
+            </div>
+            <input type="hidden" name="student_id" id="modalStudentId" />
+        </div>
+    </div>
+
     {{-- Students Data Table --}}
     <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden">
         <table class="min-w-full">
@@ -156,28 +192,77 @@
                     <th class="px-4 py-3 text-left">Name</th>
                     <th class="px-4 py-3 text-left">Email</th>
                     <th class="px-4 py-3 text-left">Teacher</th>
+                    <th class="px-4 py-3 text-left">Subject</th>
                     <th class="px-4 py-3 text-left">Registered</th>
                     <th class="px-4 py-3 text-left">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($students as $student)
+                    @php
+                        $assignedSubjectsForModal = $student->subjectsSS
+                            ->map(function ($subject) {
+                                return [
+                                    'id' => $subject->pivot->id,
+                                    'name' => $subject->name,
+                                    'teacher' => optional($subject->teacher)->name ?? 'N/A',
+                                ];
+                            })
+                            ->toArray();
+
+                        $assignedTeachersForModal = $student->teachersSS
+                            ? $student->teachersSS
+                                ->map(function ($t) {
+                                    return [
+                                        'id' => $t->id,
+                                        'name' => $t->name,
+                                        'pivot_id' => $t->pivot->id ?? null, // required for AJAX remove
+                                    ];
+                                })
+                                ->toArray()
+                            : [];
+                    @endphp
                     <tr class="border-t border-gray-200 dark:border-gray-600">
                         <td class="px-4 py-2">{{ $student->name }}</td>
                         <td class="px-4 py-2">{{ $student->email }}</td>
                         <td class="px-4 py-2">
-                            {!! $student->teacherStudent
-                                ? $student->teacherStudent->teacher->name
-                                : '<span class="text-red-500 font-semibold">Not Assigned</span>' !!}
+                            @if ($student->teachersSS && $student->teachersSS->count())
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach ($student->teachersSS as $teacher)
+                                        <span class="px-2 py-1 rounded bg-green-100 text-green-800 text-xs">
+                                            {{ $teacher->name }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @else
+                                <span class="text-red-500 font-semibold">Not Assigned</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-2">
+                            @if ($student->subjectsSS->count())
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach ($student->subjectsSS as $subject)
+                                        <span class="px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs">
+                                            {{ $subject->name }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @else
+                                <span class="text-red-500 font-semibold">Not Assigned</span>
+                            @endif
                         </td>
                         <td class="px-4 py-2">{{ $student->created_at->format('Y-m-d') }}</td>
                         <td class="px-4 py-2 flex space-x-2">
                             <button class="assign-teacher text-green-500 hover:text-green-700" title="Assign Teacher"
                                 data-student-id="{{ $student->id }}" data-student-name="{{ $student->name }}"
-                                @if ($student->teacherStudent) data-pivot-id="{{ $student->teacherStudent->id }}"
-                                    data-teacher-id="{{ $student->teacherStudent->teacher_id }}"
-                                    data-teacher-name="{{ $student->teacherStudent->teacher->name }}" @endif>
+                               data-assigned-teachers='@json($assignedTeachersForModal)'
+>
                                 <i class="fas fa-chalkboard-teacher"></i>
+                            </button>
+                            <button class="text-purple-500 hover:text-purple-700 open-assign-subject"
+                                title="Assign Subject" data-student-id="{{ $student->id }}"
+                                data-assigned-subjects='@json($assignedSubjectsForModal)'>
+                                <i class="fas fa-book-open"></i>
                             </button>
                             <button class="edit-student text-blue-500 hover:text-blue-700" data-id="{{ $student->id }}"
                                 data-name="{{ $student->name }}" data-email="{{ $student->email }}"
@@ -210,6 +295,132 @@
     </div>
 
     <script>
+        let assignSubjectStudentId = null;
+
+        function openAssignSubjectModal(studentId, assignedSubjects = []) {
+            assignSubjectStudentId = studentId;
+            document.getElementById('assignSubjectModal').classList.remove('hidden');
+            document.getElementById('modalStudentId').value = studentId;
+
+            // Show currently assigned subjects
+            let assignedList = document.getElementById('assigned-subjects-list');
+            assignedList.innerHTML = '';
+            if (assignedSubjects.length > 0) {
+                assignedSubjects.forEach(subj => {
+                    assignedList.innerHTML += `
+                        <div class="flex justify-between items-center p-2 bg-gray-200 dark:bg-gray-800 rounded-lg">
+                            <span>${subj.name} <span class="text-xs text-gray-500">(${subj.teacher})</span></span>
+                            <button type="button" class="remove-subject-btn text-red-500" data-pivot-id="${subj.id}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+            } else {
+                assignedList.innerHTML = `<span class="text-gray-500">None assigned</span>`;
+            }
+
+            // --- NEW: Fetch only subjects for assigned teacher ---
+            let availableSubjectsList = document.querySelector('#assignSubjectModal .max-h-80.overflow-y-auto.space-y-2');
+            availableSubjectsList.innerHTML = '<p class="text-gray-500">Loading...</p>';
+
+            fetch('{{ route('admin.student.subjects') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        student_id: studentId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.subjects && data.subjects.length > 0) {
+                        availableSubjectsList.innerHTML = '';
+                        data.subjects.forEach(subj => {
+                            availableSubjectsList.innerHTML += `
+                                <div class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-600 rounded-lg">
+                                    <span class="text-gray-800 dark:text-gray-200">
+                                        ${subj.subject_name}
+                                        <span class="text-xs text-gray-500">(${subj.teacher_name})</span>
+                                    </span>
+                                    <button type="button" class="assign-subject-btn text-green-500 hover:text-green-700"
+                                        data-teacher-subject-id="${subj.id}">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        availableSubjectsList.innerHTML =
+                            '<p class="text-gray-500 dark:text-gray-400 text-center">No subjects available</p>';
+                    }
+                    document.querySelectorAll('.remove-subject-btn').forEach(btn => {
+                        btn.onclick = async function() {
+                            const pivotId = this.dataset.pivotId;
+                            try {
+                                const res = await fetch(
+                                    '{{ route('admin.student.remove-subject') }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                        },
+                                        body: JSON.stringify({
+                                            pivot_id: pivotId
+                                        })
+                                    });
+                                const data = await res.json();
+                                if (data.success) {
+                                    showToast('success', data.message);
+                                    setTimeout(() => location.reload(), 1000);
+                                } else {
+                                    showToast('error', data.message);
+                                }
+                            } catch (err) {
+                                showToast('error', 'Failed to remove subject.');
+                            }
+                        };
+                    });
+                    // Bind click events for new assign buttons
+                    document.querySelectorAll('.assign-subject-btn').forEach(btn => {
+                        btn.onclick = async function() {
+                            const teacherSubjectId = this.dataset.teacherSubjectId;
+                            const studentId = document.getElementById('modalStudentId').value ||
+                                assignSubjectStudentId;
+                            try {
+                                const res = await fetch(
+                                    '{{ route('admin.student.assign-subject') }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                        },
+                                        body: JSON.stringify({
+                                            student_id: studentId,
+                                            subject_id: teacherSubjectId
+                                        })
+                                    });
+                                const data = await res.json();
+                                if (data.success) {
+                                    showToast('success', data.message);
+                                    setTimeout(() => location.reload(), 1000);
+                                } else {
+                                    showToast('error', data.message);
+                                }
+                            } catch (err) {
+                                showToast('error', 'Failed to assign subject.');
+                            }
+                        };
+                    });
+                });
+        }
+
+        function closeAssignSubjectModal() {
+            document.getElementById('assignSubjectModal').classList.add('hidden');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // New Student Modal
             const openModalBtn = document.getElementById('open-modal');
@@ -219,16 +430,14 @@
             openModalBtn.addEventListener('click', () => {
                 newStudentModal.classList.remove('hidden');
             });
-
             closeModalBtn.addEventListener('click', () => {
                 newStudentModal.classList.add('hidden');
             });
 
-            // Password toggle functionality
+            // Password toggle
             const pwdInput = document.getElementById('password');
             const toggleBtn = document.getElementById('togglePassword');
             const eyeIcon = document.getElementById('eyeIcon');
-
             toggleBtn.addEventListener('click', () => {
                 const type = pwdInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 pwdInput.setAttribute('type', type);
@@ -240,22 +449,17 @@
             const editModal = document.getElementById('edit-student-modal');
             const closeEditModalBtn = document.getElementById('close-edit-modal');
             const editButtons = document.querySelectorAll('.edit-student');
-
             editButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const id = button.dataset.id;
                     const name = button.dataset.name;
                     const email = button.dataset.email;
-                    const active = button.dataset.active;
-
                     document.getElementById('edit-id').value = id;
                     document.getElementById('edit-name').value = name;
                     document.getElementById('edit-email').value = email;
-
                     editModal.classList.remove('hidden');
                 });
             });
-
             closeEditModalBtn.addEventListener('click', () => {
                 editModal.classList.add('hidden');
             });
@@ -265,7 +469,6 @@
             const cancelDeleteBtn = document.getElementById('cancel-delete');
             const confirmDeleteBtn = document.getElementById('confirm-delete');
             const csrfToken = '{{ csrf_token() }}';
-
             document.querySelectorAll('.delete-student').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const id = btn.dataset.id;
@@ -275,16 +478,11 @@
                     deleteModal.classList.remove('hidden');
                 });
             });
-
-            // Cancel
             cancelDeleteBtn.addEventListener('click', () => {
                 deleteModal.classList.add('hidden');
             });
-
-            // Confirm delete via AJAX
             confirmDeleteBtn.addEventListener('click', async () => {
                 const studentId = confirmDeleteBtn.dataset.studentId;
-
                 try {
                     const res = await fetch('{{ route('admin.student.delete') }}', {
                         method: 'POST',
@@ -297,7 +495,6 @@
                         })
                     });
                     const data = await res.json();
-
                     if (data.success) {
                         showToast('success', data.message);
                         deleteModal.classList.add('hidden');
@@ -315,50 +512,83 @@
             const closeAssignBtn = document.getElementById('close-assign-modal');
             const assignButtons = document.querySelectorAll('.assign-teacher');
             const assignTeacherBtns = document.querySelectorAll('.assign-teacher-btn');
-            const removeSection = document.getElementById('remove-teacher-section');
-            const currentNameEl = document.getElementById('current-teacher-name');
-            const removeBtn = document.getElementById('remove-teacher-btn');
-            const studentNameEl = document.getElementById('assign-student-name');
-
-            // Open modal, populate data
+           
             assignButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const studentId = btn.dataset.studentId;
-                    const studentName = btn.dataset.studentName;
-                    const pivotId = btn.dataset.pivotId;
-                    const teacherName = btn.dataset.teacherName;
-
-                    studentNameEl.textContent = studentName;
-
-                    // If already assigned, show remove section
-                    if (pivotId) {
-                        removeSection.classList.remove('hidden');
-                        currentNameEl.textContent = teacherName;
-                        removeBtn.dataset.pivotId = pivotId;
-                    } else {
-                        removeSection.classList.add('hidden');
-                    }
-
-                    // stash studentId on each "assign-teacher-btn"
-                    assignTeacherBtns.forEach(a => {
-                        a.dataset.studentId = studentId;
-                    });
-
-                    assignModal.classList.remove('hidden');
-                });
+    btn.addEventListener('click', function() {
+        const studentId = btn.dataset.studentId;
+        const studentName = btn.dataset.studentName;
+        let assignedTeachers = [];
+        try {
+            assignedTeachers = btn.dataset.assignedTeachers && btn.dataset.assignedTeachers !== "null"
+                ? JSON.parse(btn.dataset.assignedTeachers)
+                : [];
+        } catch (e) {
+            assignedTeachers = [];
+        }
+        document.getElementById('assign-student-name').textContent = studentName;
+        const teacherList = document.getElementById('current-teacher-list');
+        teacherList.innerHTML = '';
+        if (assignedTeachers.length > 0) {
+            assignedTeachers.forEach(teacher => {
+                teacherList.innerHTML += `
+                    <div class="flex justify-between items-center p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                        <span class="text-green-900 dark:text-green-200 text-xs font-semibold">${teacher.name}</span>
+                        <button class="remove-assigned-teacher-btn text-red-500 ml-2" data-pivot-id="${teacher.pivot_id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
             });
+        } else {
+            teacherList.innerHTML = `<span class="text-gray-500">None assigned</span>`;
+        }
+        assignTeacherBtns.forEach(a => {
+            a.dataset.studentId = studentId;
+        });
+        assignModal.classList.remove('hidden');
 
-            // Close modal
+        // Bind remove-teacher buttons
+        teacherList.querySelectorAll('.remove-assigned-teacher-btn').forEach(rbtn => {
+            rbtn.onclick = async function() {
+                const pivotId = this.dataset.pivotId;
+                try {
+                    const res = await fetch('{{ route('admin.student.remove-teacher') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ pivot_id: pivotId })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('success', data.message);
+                        // Remove pill from UI instantly
+                        this.closest('div').remove();
+                        // If none left, show message
+                        if (!teacherList.querySelector('.remove-assigned-teacher-btn')) {
+                            teacherList.innerHTML = `<span class="text-gray-500">None assigned</span>`;
+                        }
+                    } else {
+                        showToast('error', data.message);
+                    }
+                } catch (err) {
+                    showToast('error', 'Could not remove teacher. Try again.');
+                }
+            };
+        });
+    });
+});
+
+
             closeAssignBtn.addEventListener('click', () => {
                 assignModal.classList.add('hidden');
             });
 
-            // Assign a new teacher
             assignTeacherBtns.forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const studentId = btn.dataset.studentId;
                     const teacherId = btn.dataset.teacherId;
-
                     try {
                         const res = await fetch(
                             '{{ route('admin.student.assign-teacher') }}', {
@@ -373,7 +603,6 @@
                                 })
                             });
                         const data = await res.json();
-
                         if (data.success) {
                             showToast('success', data.message);
                             setTimeout(() => location.reload(), 2000);
@@ -386,32 +615,80 @@
                 });
             });
 
-            // Remove current teacher (by pivot id)
-            removeBtn.addEventListener('click', async () => {
-                const pivotId = removeBtn.dataset.pivotId;
-
-                try {
-                    const res = await fetch('{{ route('admin.student.remove-teacher') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        body: JSON.stringify({
-                            pivot_id: pivotId
-                        })
-                    });
-                    const data = await res.json();
-
-                    if (data.success) {
-                        showToast('success', data.message);
-                        setTimeout(() => location.reload(), 2000);
-                    } else {
-                        showToast('error', data.message);
+            // Assign Subject
+            document.querySelectorAll('.open-assign-subject').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.dataset.studentId;
+                    let assignedSubjects = [];
+                    try {
+                        assignedSubjects = this.dataset.assignedSubjects && this.dataset
+                            .assignedSubjects !== "null" ?
+                            JSON.parse(this.dataset.assignedSubjects) :
+                            [];
+                    } catch (e) {
+                        assignedSubjects = [];
                     }
-                } catch (err) {
-                    showToast('error', 'Could not remove teacher. Try again.');
-                }
+                    openAssignSubjectModal(studentId, assignedSubjects);
+                });
+            });
+            document.querySelectorAll('.assign-subject-btn').forEach(btn => {
+                btn.onclick = async function() {
+                    const subjectId = this.dataset.subjectId;
+                    const studentId = document.getElementById('modalStudentId').value ||
+                        assignSubjectStudentId;
+                    try {
+                        const res = await fetch(
+                            '{{ route('admin.student.assign-subject') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    student_id: studentId,
+                                    subject_id: subjectId
+                                })
+                            });
+                        const data = await res.json();
+                        if (data.success) {
+                            showToast('success', data.message);
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            showToast('error', data.message);
+                        }
+                    } catch (err) {
+                        showToast('error', 'Failed to assign subject.');
+                    }
+                };
+            });
+
+            // Remove Subject
+            document.querySelectorAll('.remove-subject-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const pivotId = btn.dataset.pivotId;
+                    try {
+                        const res = await fetch(
+                            '{{ route('admin.student.remove-subject') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    pivot_id: pivotId
+                                })
+                            });
+                        const data = await res.json();
+                        if (data.success) {
+                            showToast('success', data.message);
+                            setTimeout(() => location.reload(), 1000);
+                        } else {
+                            showToast('error', data.message);
+                        }
+                    } catch (err) {
+                        showToast('error', 'Failed to remove subject.');
+                    }
+                });
             });
 
             // Close modals when clicking outside

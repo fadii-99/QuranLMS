@@ -4,12 +4,9 @@
 @section('title', 'Student List')
 
 @section('content')
-    <div class="flex items-center justify-between mb-8 bg-white dark:bg-gray-700 shadow-lg rounded-xl p-4"
-        data-aos="fade-down">
-        <h1 class="text-3xl font-extrabold text-gray-800 dark:text-gray-100 tracking-tight">Students</h1>
-    </div>
-
-    {{-- Students Data Table --}}
+    <div class="mb-8 bg-white dark:bg-gray-700 shadow-lg rounded-xl p-4">
+    <h1 class="text-3xl font-bold text-gray-800 text-white">My Students</h1>
+</div>
     <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden">
         <table class="min-w-full">
             <thead>
