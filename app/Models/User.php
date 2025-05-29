@@ -28,7 +28,9 @@ class User extends Authenticatable
         'is_paid',
         'is_blocked',
         'admin_id',
-        'remember_token'
+        'remember_token',
+        'available_to',
+        'available_from'
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -97,14 +99,19 @@ class User extends Authenticatable
     }
 
     // STUDENT: All teachers assigned to this student (many-to-many)
-public function teachersSS()
-{
-    return $this->belongsToMany(
-        self::class,
-        'teacher_students',   // Pivot table
-        'student_id',         // Foreign key on pivot (for this model)
-        'teacher_id'          // Related key on pivot
-    )->where('role', self::ROLE_TEACHER)->withPivot('id');
-}
+    public function teachersSS()
+    {
+        return $this->belongsToMany(
+            self::class,
+            'teacher_students',   // Pivot table
+            'student_id',         // Foreign key on pivot (for this model)
+            'teacher_id'          // Related key on pivot
+        )->where('role', self::ROLE_TEACHER)->withPivot('id');
+    }
 
+    public function assignedClass()
+    {
+        // Only return active class for this student and teacher
+        return $this->hasOne(\App\Models\Klass::class, 'student_id')->where('is_active', 1);
+    }
 }

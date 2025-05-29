@@ -19,8 +19,10 @@ use App\Http\Controllers\Admin\SubjectController;
 
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
 use App\Http\Controllers\Teacher\StudentController as teacherStudentController;
+use App\Http\Controllers\Teacher\ClassController as teacherClassController;
 
 use App\Http\Controllers\Student\DashboardController as StudentDashboard;
+use App\Http\Controllers\Student\ClassController as studentClassController;
 
 Route::get('/', function () {
       return view('welcome');
@@ -55,7 +57,7 @@ Route::prefix('superadmin')
 
             Route::get('recent_activity', [RecentActivityController::class, 'index'])
                   ->name('recent_activity.index');
-      });
+});
 
 
 
@@ -81,6 +83,7 @@ Route::prefix('admin')
                   ->name('teacher.assign-subject');
             Route::post('teacher/remove-subject', [TeacherController::class, 'removeSubject'])
                   ->name('teacher.remove-subject');
+            
 
 
             Route::get('students', [StudentController::class, 'index'])
@@ -112,7 +115,7 @@ Route::prefix('admin')
                   ->name('subject.update');
             Route::post('subject/delete', [SubjectController::class, 'destroy'])
                   ->name('subject.delete');
-      });
+});
 
 
 
@@ -128,7 +131,15 @@ Route::prefix('teacher')
 
             Route::get('students', [teacherStudentController::class, 'studentsList'])
                   ->name('students.index');
-      });
+            Route::post('student/assign-class', [teacherStudentController::class, 'assignClass'])
+                  ->name('student.assign-class');
+            Route::post('student/assign-class', [teacherStudentController::class, 'assignClass'])
+                  ->name('student.assign-class');
+            Route::post('student/remove-class', [teacherStudentController::class, 'removeClass'])
+                  ->name('student.remove-class');
+            Route::get('class', [teacherClassController::class, 'classList'])
+                  ->name('class.index');
+});
 
 
 
@@ -138,4 +149,6 @@ Route::prefix('student')
       ->group(function () {
             Route::get('dashboard', [StudentDashboard::class, 'index'])
                   ->name('dashboard');
-      });
+            Route::get('class', [studentClassController::class, 'classList'])
+                  ->name('class.index');
+});

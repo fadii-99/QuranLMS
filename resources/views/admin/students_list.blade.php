@@ -48,6 +48,20 @@
                         <i class="fas fa-eye absolute right-4 top-2/3 -translate-y-1/2" id="eyeIcon"></i>
                     </button>
                 </div>
+                <div class="flex space-x-2">
+                    <div class="w-1/2">
+                        <label for="available_from" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">Available
+                            From</label>
+                        <input id="available_from" name="available_from" type="time" required
+                            class="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border border-gray-300/50 dark:border-gray-600/50 focus:ring-2 focus:ring-primary transition">
+                    </div>
+                    <div class="w-1/2">
+                        <label for="available_to" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">Available
+                            To</label>
+                        <input id="available_to" name="available_to" type="time" required
+                            class="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border border-gray-300/50 dark:border-gray-600/50 focus:ring-2 focus:ring-primary transition">
+                    </div>
+                </div>
                 <button type="submit"
                     class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-dark transition">
                     Register Student
@@ -66,7 +80,6 @@
             <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Edit Student</h3>
             <form action="{{ route('admin.student.update') }}" method="POST" class="space-y-4">
                 @csrf
-                @method('PUT')
                 <input type="hidden" id="edit-id" name="id">
                 <div>
                     <label for="edit-name" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">Name</label>
@@ -77,6 +90,20 @@
                     <label for="edit-email" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">Email</label>
                     <input id="edit-email" name="email" type="email" required
                         class="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border border-gray-300/50 dark:border-gray-600/50 focus:ring-2 focus:ring-primary transition">
+                </div>
+                <div class="flex space-x-2">
+                    <div class="w-1/2">
+                        <label for="edit-available_from"
+                            class="block text-sm text-gray-600 dark:text-gray-300 mb-1">Available From</label>
+                        <input id="edit-available_from" name="available_from" type="time" required
+                            class="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border border-gray-300/50 dark:border-gray-600/50 focus:ring-2 focus:ring-primary transition">
+                    </div>
+                    <div class="w-1/2">
+                        <label for="edit-available_to" class="block text-sm text-gray-600 dark:text-gray-300 mb-1">Available
+                            To</label>
+                        <input id="edit-available_to" name="available_to" type="time" required
+                            class="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-200 border border-gray-300/50 dark:border-gray-600/50 focus:ring-2 focus:ring-primary transition">
+                    </div>
                 </div>
                 <button type="submit"
                     class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-dark transition">
@@ -272,9 +299,12 @@
 
                             <button class="edit-student text-blue-500 hover:text-blue-700" data-id="{{ $student->id }}"
                                 data-name="{{ $student->name }}" data-email="{{ $student->email }}"
+                                data-available-from="{{ $student->available_from }}"
+                                data-available-to="{{ $student->available_to }}"
                                 data-active="{{ $student->is_active }}">
                                 <i class="fas fa-edit"></i>
                             </button>
+
                             <button class="delete-student text-red-500 hover:text-red-700" data-id="{{ $student->id }}"
                                 data-name="{{ $student->name }}">
                                 <i class="fas fa-trash"></i>
@@ -460,9 +490,13 @@
                     const id = button.dataset.id;
                     const name = button.dataset.name;
                     const email = button.dataset.email;
+                    const availableFrom = button.dataset.availableFrom || '';
+                    const availableTo = button.dataset.availableTo || '';
                     document.getElementById('edit-id').value = id;
                     document.getElementById('edit-name').value = name;
                     document.getElementById('edit-email').value = email;
+                    document.getElementById('edit-available_from').value = availableFrom;
+                    document.getElementById('edit-available_to').value = availableTo;
                     editModal.classList.remove('hidden');
                 });
             });

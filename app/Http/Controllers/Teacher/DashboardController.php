@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Klass;
+use App\Models\TeacherStudent;
+use Illuminate\Support\Facades\Auth;
+
 
 class DashboardController extends Controller
 {
@@ -12,10 +16,12 @@ class DashboardController extends Controller
     {
         $teacher = auth()->user();
 
-        $students     = User::where('role', USER::ROLE_STUDENT)->get();
-        $totalClasses = 10;
-        $recentClasses = User::where('id', 1)
-            ->take(5)
+         $students = TeacherStudent::with([
+            'student.assignedClass'
+        ])->where('teacher_id', Auth::id())->orderBy('created_at', 'desc')->paginate(10);
+        $totalClasses = Klass::where('teacher_id', Auth::id())->count();
+        $recentClasses = Klass::where('teacher_id', Auth::id())->where('teacherStarted', false)
+            ->limit(3)
             ->get();
 
         return view('teacher.dashboard', compact(

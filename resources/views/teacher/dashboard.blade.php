@@ -49,7 +49,7 @@
       <table class="min-w-full text-sm">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th class="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Title</th>
+            <th class="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Student Name</th>
             <th class="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Scheduled At</th>
             <th class="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Status</th>
             <th class="px-6 py-3 text-left font-medium text-gray-600 dark:text-gray-300">Action</th>
@@ -59,10 +59,11 @@
           @forelse($recentClasses as $i => $class)
             <tr class="{{ $i % 2 == 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700' }}">
               <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
-                {{ $class->title }}
+                {{ $class->student->name }}
               </td>
               <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
-                dddd
+                {{ $class->time }}
+
               </td>
               <td class="px-6 py-4">
                 <span class="px-2 py-1 rounded-full text-xs font-medium
@@ -76,7 +77,7 @@
               <td class="px-6 py-4">
                 <a href=""
                    class="px-3 py-1 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm">
-                  View
+                 start class
                 </a>
               </td>
             </tr>

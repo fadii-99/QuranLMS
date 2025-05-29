@@ -18,7 +18,10 @@ return new class extends Migration
             $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
             $table->string('time'); 
+            $table->string('status')->default('pending'); // scheduled, completed, cancelled
             $table->boolean('is_active')->default(true);
+            $table->boolean('teacherStarted')->default(false);
+            $table->boolean('studentJoined')->default(false);
             $table->timestamps();
         });
     }

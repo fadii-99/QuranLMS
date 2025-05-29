@@ -59,12 +59,20 @@
                 class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('teacher.students.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
                 <i class="fas fa-user-graduate  mr-3"></i> Students
             </a>
+            <a href="{{ route('teacher.class.index') }}"
+                class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('teacher.class.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
+                <i class="fas fa-chalkboard mr-3"></i> Classes
+            </a>
         </nav>
     @elseif(auth()->check() && auth()->user()->role === App\Models\User::ROLE_STUDENT)
         <nav class="flex-1">
             <a href="{{ route('student.dashboard') }}"
                 class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('student.dashboard') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
                 <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+            </a>
+             <a href="{{ route('student.class.index') }}"
+                class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('student.class.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
+                <i class="fas fa-chalkboard mr-3"></i> Classes
             </a>
         </nav>
     @endif

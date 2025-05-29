@@ -70,6 +70,8 @@ class StudentController extends Controller
         $data['password'] = bcrypt($data['password']);
         $data['role']     = User::ROLE_STUDENT;
         $data['admin_id'] = auth()->id();
+        $data['available_to'] = $request->available_to;
+        $data['available_from'] =  $request->available_from;
 
         $student = User::create($data);
 
@@ -86,6 +88,46 @@ class StudentController extends Controller
             ->route('admin.student.index')
             ->with('success', 'Student created successfully');
     }
+
+    public function update(Request $request)
+    {
+        $data = $request->validate([
+            'id'       => 'required|exists:users,id',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $request->id,
+            'available_from' => 'required',
+            'available_to'   => 'required',
+            // Password is optional in update
+            'password' => 'nullable|string|min:8',
+        ]);
+
+        $student = User::findOrFail($request->id);
+
+        $student->name           = $data['name'];
+        $student->email          = $data['email'];
+        $student->available_from = $data['available_from'];
+        $student->available_to   = $data['available_to'];
+
+        // Agar password diya hai to update karo warna chhoro
+        if (!empty($data['password'])) {
+            $student->password = bcrypt($data['password']);
+        }
+
+        $student->save();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Student updated successfully',
+                'student' => $student,
+            ], 200);
+        }
+
+        return redirect()
+            ->route('admin.student.index')
+            ->with('success', 'Student updated successfully');
+    }
+
 
     public function assignTeacher(Request $request)
     {
@@ -131,47 +173,47 @@ class StudentController extends Controller
         ]);
     }
 
-   public function removeTeacher(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'pivot_id' => 'required|integer|exists:teacher_students,id',
-    ]);
+    public function removeTeacher(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'pivot_id' => 'required|integer|exists:teacher_students,id',
+        ]);
 
-    if ($validator->fails()) {
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
+
+        // 1. Find the TeacherStudent record
+        $teacherStudent = TeacherStudent::find($request->pivot_id);
+        if (! $teacherStudent) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Assignment not found',
+            ], 404);
+        }
+
+        $studentId = $teacherStudent->student_id;
+        $teacherId = $teacherStudent->teacher_id;
+
+        // 2. Find all teacher_subject IDs for this teacher
+        $teacherSubjectIds = teacher_subject::where('teacher_id', $teacherId)->pluck('id');
+
+        // 3. Remove all StudentSubject assignments for this student and these teacher_subjects
+        \App\Models\StudentSubject::where('student_id', $studentId)
+            ->whereIn('subject_id', $teacherSubjectIds)
+            ->delete();
+
+        // 4. Remove the teacher-student assignment
+        $teacherStudent->delete();
+
         return response()->json([
-            'success' => false,
-            'message' => $validator->errors()->first(),
-        ], 422);
+            'success' => true,
+            'message' => 'Teacher and related subject assignments removed successfully',
+        ]);
     }
-
-    // 1. Find the TeacherStudent record
-    $teacherStudent = TeacherStudent::find($request->pivot_id);
-    if (! $teacherStudent) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Assignment not found',
-        ], 404);
-    }
-
-    $studentId = $teacherStudent->student_id;
-    $teacherId = $teacherStudent->teacher_id;
-
-    // 2. Find all teacher_subject IDs for this teacher
-    $teacherSubjectIds = teacher_subject::where('teacher_id', $teacherId)->pluck('id');
-
-    // 3. Remove all StudentSubject assignments for this student and these teacher_subjects
-    \App\Models\StudentSubject::where('student_id', $studentId)
-        ->whereIn('subject_id', $teacherSubjectIds)
-        ->delete();
-
-    // 4. Remove the teacher-student assignment
-    $teacherStudent->delete();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Teacher and related subject assignments removed successfully',
-    ]);
-}
 
 
 
