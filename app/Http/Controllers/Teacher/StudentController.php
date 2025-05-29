@@ -69,11 +69,11 @@ class StudentController extends Controller
                 ->withInput();
         }
 
-        
-        $subject = StudentSubject::where('student_id', $student->id)->first(); // ya apni logic
-        if (!$subject) {
-            return back()->withErrors(['Student is not assigned any subject'])->withInput();
+        if (!StudentSubject::where('student_id', $student->id)->exists()) {
+             return redirect()->route('teacher.students.index')
+            ->with('success', 'Student is not assigned any subject, Contact Admin!');
         }
+        $subject = StudentSubject::where('student_id', $student->id)->first(); // ya apni logic
 
         $admin_id   = $student->admin_id;
 
