@@ -92,7 +92,7 @@
     </div>
 
     {{-- Subjects Data Table --}}
-    <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden">
+    <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden overflow-x-auto">
         <table class="min-w-full">
             <thead>
                 <tr class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">

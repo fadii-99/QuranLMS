@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Klass;
 use App\Models\TeacherStudent;
+use App\Models\RequestComplain;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -29,5 +30,21 @@ class DashboardController extends Controller
             'totalClasses',
             'recentClasses',
         ));
+    }
+
+    public function storeReqComp(Request $request)
+    {
+        $request->validate([
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string|max:2000',
+        ]);
+        $teacher = auth()->user();
+        RequestComplain::create([
+            'admin_id' =>  $teacher->admin_id,
+            'user_id' =>  $teacher->id,
+            'subject' => $request->subject,
+            'message' => $request->message,
+        ]);
+        return response()->json(['success' => true, 'message' => 'Request sent!']);
     }
 }

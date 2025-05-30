@@ -175,7 +175,7 @@
     <div id="assignSubjectModal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="bg-white dark:bg-gray-700 rounded-2xl p-6 w-full max-w-md shadow-xl relative">
-            <button onclick="closeAssignSubjectModal()"
+            <button id="close-assign-modal1"
                 class="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-100">
                 <i class="fas fa-times text-xl"></i>
             </button>
@@ -212,7 +212,7 @@
     </div>
 
     {{-- Students Data Table --}}
-    <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden">
+    <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden overflow-x-auto">
         <table class="min-w-full">
             <thead>
                 <tr class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
@@ -345,7 +345,7 @@
                 assignedSubjects.forEach(subj => {
                     assignedList.innerHTML += `
                         <div class="flex justify-between items-center p-2 bg-gray-200 dark:bg-gray-800 rounded-lg">
-                            <span>${subj.name} <span class="text-xs text-gray-500">(${subj.teacher})</span></span>
+                            <span>${subj.name} </span>
                             <button type="button" class="remove-subject-btn text-red-500" data-pivot-id="${subj.id}">
                                 <i class="fas fa-times"></i>
                             </button>
@@ -379,7 +379,7 @@
                                 <div class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-600 rounded-lg">
                                     <span class="text-gray-800 dark:text-gray-200">
                                         ${subj.subject_name}
-                                        <span class="text-xs text-gray-500">(${subj.teacher_name})</span>
+                                        <span class="text-xs text-gray-500"></span>
                                     </span>
                                     <button type="button" class="assign-subject-btn text-green-500 hover:text-green-700"
                                         data-teacher-subject-id="${subj.id}">
@@ -631,6 +631,15 @@
             closeAssignBtn.addEventListener('click', () => {
                 assignModal.classList.add('hidden');
             });
+            const assignSubjectModal = document.getElementById('assignSubjectModal');
+            const closeAssignBtn1 = document.getElementById('close-assign-modal1');
+
+            if (closeAssignBtn1 && assignSubjectModal) {
+                closeAssignBtn1.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    assignSubjectModal.classList.add('hidden');
+                });
+            }
 
             assignTeacherBtns.forEach(btn => {
                 btn.addEventListener('click', async () => {

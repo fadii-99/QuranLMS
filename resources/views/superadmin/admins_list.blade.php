@@ -1,5 +1,5 @@
 {{-- resources/views/superadmin/admins_list.blade.php --}}
-@extends('layouts.superadmin')
+@extends('layouts.admin')
 
 @section('title', 'Admins List')
 
@@ -115,20 +115,20 @@
                         placeholder="Enter academy name">
                 </div>
                 <div class="grid grid-cols-2 gap-4 p-3 bg-gray-50 dark:bg-gray-600 rounded-lg">
-                  <div class="flex items-center space-x-3">
-                    <input type="checkbox" id="edit-is_paid" name="is_paid"
-                      class="w-4 h-4 rounded text-primary focus:ring-primary focus:ring-offset-2 transition-all duration-200">
-                    <label for="edit-is_paid" class="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      <i class="fas fa-money-bill-wave mr-1"></i> Paid Status
-                    </label>
-                  </div>
-                  <div class="flex items-center space-x-3">
-                    <input type="checkbox" id="edit-is_blocked" name="is_blocked"
-                      class="w-4 h-4 rounded text-primary focus:ring-primary focus:ring-offset-2 transition-all duration-200">
-                    <label for="edit-is_blocked" class="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      <i class="fas fa-ban mr-1"></i> Blocked Status
-                    </label>
-                  </div>
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="edit-is_paid" name="is_paid"
+                            class="w-4 h-4 rounded text-primary focus:ring-primary focus:ring-offset-2 transition-all duration-200">
+                        <label for="edit-is_paid" class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            <i class="fas fa-money-bill-wave mr-1"></i> Paid Status
+                        </label>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="edit-is_blocked" name="is_blocked"
+                            class="w-4 h-4 rounded text-primary focus:ring-primary focus:ring-offset-2 transition-all duration-200">
+                        <label for="edit-is_blocked" class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                            <i class="fas fa-ban mr-1"></i> Blocked Status
+                        </label>
+                    </div>
                 </div>
                 <button type="submit"
                     class="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-dark transition">
@@ -162,10 +162,11 @@
 
 
     {{-- Admins Data Table --}}
-    <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden">
+    <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden overflow-x-auto">
         <table class="min-w-full">
             <thead>
                 <tr class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                    <th class="px-4 py-3 text-left">ID</th>
                     <th class="px-4 py-3 text-left">Name</th>
                     <th class="px-4 py-3 text-left">Email</th>
                     <th class="px-4 py-3 text-left">Academy</th>
@@ -179,6 +180,7 @@
             <tbody>
                 @forelse($admins as $admin)
                     <tr class="border-t border-gray-200 dark:border-gray-600">
+                        <td class="px-4 py-2">{{ $admin->roll_no }}</td>
                         <td class="px-4 py-2">{{ $admin->name }}</td>
                         <td class="px-4 py-2">{{ $admin->email }}</td>
                         <td class="px-4 py-2">{{ $admin->academy_name ?? '—' }}</td>
@@ -192,15 +194,14 @@
                                 <span class="text-red-500 font-semibold">Blocked</span>
                             </td>
                         @else
-                            
-                        <td class="px-4 py-2">
-                            <button
-                            class="toggle-status text-sm px-3 py-1 rounded-full {{ $admin->is_paid == true ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }}"
-                            data-id="{{ $admin->id }}" data-status="{{ $admin->status }}">
-                            {{ $admin->is_paid == true ? 'Paid' : 'Not Paid' }}
-                        </button>
-                    </td>
-                    @endif
+                            <td class="px-4 py-2">
+                                <button
+                                    class="toggle-status text-sm px-3 py-1 rounded-full {{ $admin->is_paid == true ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }}"
+                                    data-id="{{ $admin->id }}" data-status="{{ $admin->status }}">
+                                    {{ $admin->is_paid == true ? 'Paid' : 'Not Paid' }}
+                                </button>
+                            </td>
+                        @endif
 
                         <td class="px-4 py-2 flex space-x-2">
                             <button class="edit-admin text-blue-500 hover:text-blue-700" data-id="{{ $admin->id }}"
@@ -224,7 +225,8 @@
                                     <i class="fas fa-users-slash text-3xl text-gray-400 dark:text-gray-500"></i>
                                 </div>
                                 <h3 class="text-lg font-medium text-gray-500 dark:text-gray-400">No Admins Found</h3>
-                                <p class="text-sm text-gray-400 dark:text-gray-500">Click the "New Admin" button above to add an administrator.</p>
+                                <p class="text-sm text-gray-400 dark:text-gray-500">Click the "New Admin" button above to
+                                    add an administrator.</p>
                             </div>
                         </td>
                     </tr>
@@ -316,6 +318,35 @@
                     deleteModal.classList.remove('hidden');
                 });
             });
+            confirmDeleteBtn.addEventListener('click', async () => {
+                const studentId = confirmDeleteBtn.dataset.id;
+                const csrfToken = '{{ csrf_token() }}';
+                try {
+                    const res = await fetch('{{ route('superadmin.admin.delete') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json' 
+                        },
+                        body: JSON.stringify({
+                            id: studentId
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('success', data.message);
+                        deleteModal.classList.add('hidden');
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        showToast('error', data.message || 'Could not delete admin.');
+                    }
+                } catch (err) {
+                    showToast('error', 'Could not delete admin. Try again.');
+                }
+            });
+
+
 
             cancelDeleteBtn.addEventListener('click', () => {
                 deleteModal.classList.add('hidden');

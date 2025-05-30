@@ -11,16 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('teacher_subjects', function (Blueprint $table) {
+        Schema::create('request_complains', function (Blueprint $table) {
             $table->id();
             $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('teacher_id')
-                  ->constrained('users')
-                  ->onDelete('cascade');
-            $table->foreignId('subject_id')
-                  ->constrained('subjects')
-                  ->onDelete('cascade');
-            $table->boolean('active')->default(true);
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('subject');
+            $table->string('status')->default('pending'); // pending, approved, rejected
+            $table->string('type')->nullable();
+            $table->text('message');
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('teacher_subjects');
+        Schema::dropIfExists('request_complains');
     }
 };

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom: Cosmic Meet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3a8a, #4c1d95);
+            animation: gradient 15s ease infinite;
+            overflow: hidden;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .video-container {
+            transition: all 0.3s ease;
+        }
+        .video-container:hover {
+            transform: scale(1.01);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+        .control-btn {
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+        }
+        .control-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        .panel {
+            transition: transform 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .panel-hidden {
+            transform: translateX(-100%);
+        }
+        .panel-right-hidden {
+            transform: translateX(100%);
+        }
+        .screen-sharing {
+            border-color: #22c55e !important;
+        }
+        .screen-sharing-label {
+            background: #22c55e;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex p-2">
+    <div class="bg-gray-900 bg-opacity-90 shadow-2xl rounded-2xl w-full h-[98vh] flex flex-col backdrop-blur-md relative">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-3 border-b border-gray-700">
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">Classroom: Cosmic Meet</h2>
+            <span class="px-3 py-1 bg-green-500 text-white rounded-full text-sm font-semibold animate-pulse">Live</span>
+        </div>
+        <!-- Main Content -->
+        <div class="flex flex-1 overflow-hidden relative">
+            <!-- Participant Panel (Left) -->
+            <div id="participantPanel" class="panel absolute top-0 left-0 w-60 h-full p-3 z-10">
+                <div class="flex items-center justify-between mb-3">
+                    <button onclick="toggleParticipantPanel()" class="text-white hover:text-blue-400">
+                        <i id="participantToggleIcon" class="fas fa-chevron-left"></i>
+                    </button>
+                    <h3 class="text-lg font-semibold text-white">Participant</h3>
+                </div>
+                <div class="space-y-3 overflow-y-auto h-[calc(100%-70px)]">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-pink-500 flex items-center justify-center text-white font-medium">S</div>
+                        <span class="text-white font-medium">Student: Jane Smith</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Participant Toggle Button (Visible when panel is closed) -->
+            <button id="participantToggleBtn" class="toggle-btn absolute top-1/2 left-0 p-2 rounded-r-lg text-white hidden z-20" onclick="toggleParticipantPanel()">
+                <i class="fas fa-users"></i>
+            </button>
+            <!-- Chat Panel (Right) -->
+            <div id="chatPanel" class="panel absolute top-0 right-0 w-60 h-full p-3 z-10">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-white">Chat</h3>
+                    <button onclick="toggleChatPanel()" class="text-white hover:text-blue-400">
+                        <i id="chatToggleIcon" class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="space-y-3 overflow-y-auto h-[calc(100%-70px)]">
+                    <div class="bg-gray-700 bg-opacity-50 p-2 rounded-lg text-white text-sm">Teacher: Welcome to the class!</div>
+                    <div class="bg-blue-500 bg-opacity-50 p-2 rounded-lg text-white text-sm">Student: Hello, ready to learn!</div>
+                </div>
+            </div>
+            <!-- Chat Toggle Button (Visible when panel is closed) -->
+            <button id="chatToggleBtn" class="toggle-btn absolute top-1/2 right-0 p-2 rounded-l-lg text-white hidden z-20" onclick="toggleChatPanel()">
+                <i class="fas fa-comments"></i>
+            </button>
+            <!-- Teacher Video/Screen -->
+            <div class="flex-1 p-3">
+                <div id="teacherVideoContainer" class="h-full flex items-center justify-center video-container">
+                    <video id="teacherVideo" autoplay playsinline muted class="w-full h-full object- rounded-lg border-2 border-blue-400 shadow-xl hidden"></video>
+                    <div id="teacherPlaceholder" class="text-white text-2xl font-medium opacity-80">Teacher: Prof. John Doe</div>
+                    <div id="screenSharingLabel" class="screen-sharing-label hidden">Screen Sharing</div>
+                </div>
+            </div>
+        </div>
+        <!-- Controls -->
+        <div class="flex gap-3 justify-center p-2 bg-gray-800 bg-opacity-80 rounded-lg">
+            <i onclick="startClass()" class="control-btn fas fa-play p-3 text-white rounded-lg shadow-lg cursor-pointer" title="Start Class"></i>
+            <i onclick="toggleVideo()" class="control-btn fas fa-video p-3 text-white rounded-lg shadow-lg cursor-pointer" id="videoBtnIcon" title="Turn Off Video"></i>
+            <i onclick="toggleMic()" class="control-btn fas fa-microphone p-3 text-white rounded-lg shadow-lg cursor-pointer" id="micBtnIcon" title="Mute Mic"></i>
+            <i onclick="toggleScreenShare()" class="control-btn fas fa-desktop p-3 text-white rounded-lg shadow-lg cursor-pointer" id="screenShareBtnIcon" title="Share Screen"></i>
+        </div>
+    </div>
+
+    <script>
+        let myStream;
+        let peer;
+        let isVideoOn = true;
+        let isMicOn = true;
+        let isScreenSharing = false;
+        let isParticipantPanelOpen = true;
+        let isChatPanelOpen = true;
+        let classData = {
+            teacher_id: "teacher123",
+            student_id: "student456",
+            admin_id: "admin789",
+            class_time: "2025-05-30T04:01:00Z",
+            class_link: ""
+        };
+
+        function generateClassLink() {
+            const link = `https://cosmicmeet.com/class/${btoa(JSON.stringify({ teacher_id: classData.teacher_id, student_id: classData.student_id, timestamp: Date.now() }))}`;
+            classData.class_link = link;
+            // TODO: Store classData in backend database (e.g., via API)
+            console.log("Generated class link:", link);
+            return link;
+        }
+
+        async function startClass() {
+            const classLink = generateClassLink();
+            console.log("Share this link with the student:", classLink);
+
+            try {
+                myStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                if (isVideoOn) {
+                    document.getElementById('teacherVideo').srcObject = myStream;
+                    document.getElementById('teacherVideo').classList.remove('hidden');
+                    document.getElementById('teacherPlaceholder').classList.add('hidden');
+                }
+
+                peer = new SimplePeer({ initiator: true, stream: myStream });
+
+                peer.on('stream', stream => {
+                    document.getElementById('teacherVideo').srcObject = stream;
+                    document.getElementById('teacherVideo').classList.remove('hidden');
+                    document.getElementById('teacherPlaceholder').classList.add('hidden');
+                });
+
+                peer.on('signal', data => {
+                    // TODO: Send signal data to backend signaling server
+                    console.log('Signal data:', JSON.stringify(data));
+                });
+            } catch (err) {
+                console.error('Error starting class:', err);
+                alert('Failed to start class. Please check camera/microphone permissions.');
+            }
+        }
+
+        async function toggleScreenShare() {
+            if (isScreenSharing) {
+                myStream.getTracks().forEach(track => track.stop());
+                isScreenSharing = false;
+                document.getElementById('screenShareBtnIcon').classList.remove('fa-stop');
+                document.getElementById('screenShareBtnIcon').classList.add('fa-desktop');
+                document.getElementById('screenShareBtnIcon').title = 'Share Screen';
+                document.getElementById('teacherVideo').classList.remove('screen-sharing');
+                document.getElementById('screenSharingLabel').classList.add('hidden');
+                startClass();
+            } else {
+                try {
+                    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                    isScreenSharing = true;
+                    myStream = screenStream;
+                    document.getElementById('teacherVideo').srcObject = screenStream;
+                    document.getElementById('teacherVideo').classList.remove('hidden');
+                    document.getElementById('teacherVideo').classList.add('screen-sharing');
+                    document.getElementById('teacherPlaceholder').classList.add('hidden');
+                    document.getElementById('screenSharingLabel').classList.remove('hidden');
+                    document.getElementById('screenShareBtnIcon').classList.remove('fa-desktop');
+                    document.getElementById('screenShareBtnIcon').classList.add('fa-stop');
+                    document.getElementById('screenShareBtnIcon').title = 'Stop Sharing';
+
+                    if (peer) {
+                        const videoTrack = screenStream.getVideoTracks()[0];
+                        const sender = peer.streams[0].getVideoTracks()[0];
+                        peer.replaceTrack(sender, videoTrack, peer.streams[0]);
+                    }
+
+                    screenStream.getVideoTracks()[0].onended = () => {
+                        toggleScreenShare();
+                    };
+                } catch (err) {
+                    console.error('Error sharing screen:', err);
+                    alert('Failed to share screen. Please try again.');
+                }
+            }
+        }
+
+        function toggleVideo() {
+            isVideoOn = !isVideoOn;
+            if (!isScreenSharing) {
+                myStream.getVideoTracks().forEach(track => track.enabled = isVideoOn);
+                document.getElementById('videoBtnIcon').classList.toggle('fa-video', isVideoOn);
+                document.getElementById('videoBtnIcon').classList.toggle('fa-video-slash', !isVideoOn);
+                document.getElementById('videoBtnIcon').title = isVideoOn ? 'Turn Off Video' : 'Turn On Video';
+                if (!isVideoOn) {
+                    document.getElementById('teacherVideo').classList.add('hidden');
+                    document.getElementById('teacherPlaceholder').classList.remove('hidden');
+                } else {
+                    document.getElementById('teacherVideo').srcObject = myStream;
+                    document.getElementById('teacherVideo').classList.remove('hidden');
+                    document.getElementById('teacherPlaceholder').classList.add('hidden');
+                }
+            }
+        }
+
+        function toggleMic() {
+            isMicOn = !isMicOn;
+            myStream.getAudioTracks().forEach(track => track.enabled = isMicOn);
+            document.getElementById('micBtnIcon').classList.toggle('fa-microphone', isMicOn);
+            document.getElementById('micBtnIcon').classList.toggle('fa-microphone-slash', !isMicOn);
+            document.getElementById('micBtnIcon').title = isMicOn ? 'Mute Mic' : 'Unmute Mic';
+        }
+
+        function toggleParticipantPanel() {
+            isParticipantPanelOpen = !isParticipantPanelOpen;
+            const panel = document.getElementById('participantPanel');
+            const toggleBtn = document.getElementById('participantToggleBtn');
+            const toggleIcon = document.getElementById('participantToggleIcon');
+            if (isParticipantPanelOpen) {
+                panel.classList.remove('panel-hidden');
+                toggleBtn.classList.add('hidden');
+                toggleIcon.classList.remove('fa-chevron-right');
+                toggleIcon.classList.add('fa-chevron-left');
+            } else {
+                panel.classList.add('panel-hidden');
+                toggleBtn.classList.remove('hidden');
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+            }
+        }
+
+        function toggleChatPanel() {
+            isChatPanelOpen = !isChatPanelOpen;
+            const panel = document.getElementById('chatPanel');
+            const toggleBtn = document.getElementById('chatToggleBtn');
+            const toggleIcon = document.getElementById('chatToggleIcon');
+            if (isChatPanelOpen) {
+                panel.classList.remove('panel-right-hidden');
+                toggleBtn.classList.add('hidden');
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+            } else {
+                panel.classList.add('panel-right-hidden');
+                toggleBtn.classList.remove('hidden');
+                toggleIcon.classList.remove('fa-chevron-right');
+                toggleIcon.classList.add('fa-chevron-left');
+            }
+        }
+
+        startClass();
+    </script>
+</body>
+</html>

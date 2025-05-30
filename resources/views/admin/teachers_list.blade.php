@@ -163,7 +163,7 @@
     </div>
 
     {{-- Teachers Data Table --}}
-    <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden">
+    <div class="bg-white dark:bg-gray-700 shadow rounded-lg overflow-hidden overflow-x-auto" >
         <table class="min-w-full">
             <thead>
                 <tr class="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
@@ -183,8 +183,7 @@
                         <td class="px-4 py-2">{{ $teacher->students_count }}</td>
                         <td class="px-4 py-2">
                             @if ($teacher->subjects->count())
-                            <div class="flex flex-wrap gap-2">
-                                   ( {{  $teacher->subjects->count() }} )
+                                <div class="flex flex-wrap gap-2">
                                     @foreach ($teacher->subjects as $subject)
                                         <span class="px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs">
                                             {{ $subject->name }}
@@ -274,7 +273,7 @@
                     document.getElementById('edit-name').value = name;
                     document.getElementById('edit-email').value = email;
 
-                editModal.classList.remove('hidden');
+                    editModal.classList.remove('hidden');
                 });
             });
 
@@ -335,6 +334,7 @@
             const assignButtons = document.querySelectorAll('.assign-subject');
             const assignSubjectBtns = document.querySelectorAll('.assign-subject-btn');
             const teacherNameEl = document.getElementById('assign-teacher-name');
+
 
             assignButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -436,6 +436,13 @@
                     }
                 }
             });
+
+            if (closeAssignBtn && assignModal) {
+                closeAssignBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    assignModal.classList.add('hidden');
+                });
+            }
 
             // Close modals when clicking outside
             window.addEventListener('click', (e) => {

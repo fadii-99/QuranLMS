@@ -34,12 +34,19 @@ class TeacherController extends Controller
             'name'  => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
         ]);
+
+         do {
+            $roll_no = 'TCH' . mt_rand(10000000, 99999999);
+        } while (User::where('roll_no', $roll_no)->exists());
         $data['password'] = bcrypt($request->password); // or generate/send password
         $data['role']     = User::ROLE_TEACHER;
         $data['admin_id'] = auth()->id();
+        $data['roll_no'] = $roll_no;
         User::create($data);
         return redirect()->route('admin.teacher.index');
     }
+
+
     public function update(Request $request)
     {
         $teacher = User::findOrFail($request->id);
@@ -60,13 +67,20 @@ class TeacherController extends Controller
         ]);
 
         $teacher = User::findOrFail($validated['teacher_id']);
+        $adminId = Auth::id();
 
-        // Check if subject is already assigned
-        if ($teacher->subjects()->where('subject_id', $validated['subject_id'])->exists()) {
+        // Check if subject is already assigned with this admin_id
+        $alreadyAssigned = $teacher->subjects()
+            ->wherePivot('admin_id', $adminId)
+            ->where('subject_id', $validated['subject_id'])
+            ->exists();
+
+        if ($alreadyAssigned) {
             return response()->json(['success' => false, 'message' => 'Subject already assigned!']);
         }
 
-        $teacher->subjects()->syncWithoutDetaching([$validated['subject_id']]);
+        // Attach with admin_id in the pivot table
+        $teacher->subjects()->attach($validated['subject_id'], ['admin_id' => $adminId]);
         return response()->json(['success' => true, 'message' => 'Subject assigned!']);
     }
 

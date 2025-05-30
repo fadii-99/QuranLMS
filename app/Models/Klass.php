@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Klass extends Model
 {
     use HasFactory;
-     protected $fillable = ['admin_id', 'subject_id', 'teacher_id', 'student_id', 'time', 'is_active'];
+     protected $fillable = ['admin_id', 'subject_id', 'teacher_id', 'student_id', 'time', 'is_active', 'link'];
 
       public function student() { return $this->belongsTo(User::class, 'student_id'); }
     public function teacher() { return $this->belongsTo(User::class, 'teacher_id'); }
+    public function subject() { return $this->belongsTo(Subject::class, 'subject_id'); }
 
 }

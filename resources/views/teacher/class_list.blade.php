@@ -51,10 +51,17 @@
                                     Class started
                                 </span>
                             @else
-                                <a href=""
+                                {{-- @if ($class->status)
+                                <a href="{{ $class->status }}" target="_blank"
+                                    class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
+                                    Join Class
+                                </a>
+                            @else --}}
+                                <button onclick="startClass({{ $class->id }})"
                                     class="px-3 py-1 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm">
                                     Start Class
-                                </a>
+                                </button>
+                            {{-- @endif --}}
                             @endif
                         </td>
                     </tr>
@@ -74,5 +81,27 @@
             {{ $classes->links() }}
         </div>
     </div>
+
+    <script>
+        function startClass(classId) {
+    fetch(`/teacher/class/${classId}/start`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            window.location.href = data.link; // Ya reload karao, ya link dikhao
+        } else {
+            alert('Could not start class');
+        }
+    })
+    .catch(() => alert('Server error!'));
+}
+
+    </script>
 
 @endsection

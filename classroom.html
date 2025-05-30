@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LAN Classroom WebRTC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+</head>
+<body class="bg-blue-950 flex items-center justify-center h-screen">
+    <div class="bg-white bg-opacity-10 backdrop-blur-lg shadow-2xl rounded-2xl p-8 flex flex-col gap-4 w-[600px]">
+        <div class="flex gap-2">
+            <label class="text-white">Role:</label>
+            <select id="roleSelect" class="p-1 rounded">
+                <option value="teacher">Teacher</option>
+                <option value="student">Student</option>
+            </select>
+            <label class="text-white ml-4">Room:</label>
+            <input id="roomInput" class="p-1 rounded" placeholder="my-class-1" value="my-class-1">
+            <button onclick="joinRoom()" class="bg-blue-600 text-white px-3 rounded">Join</button>
+        </div>
+        <div id="status" class="text-yellow-300"></div>
+        <div class="mt-2">
+            <video id="teacherVideo" autoplay playsinline muted class="rounded shadow w-full max-h-96 hidden"></video>
+            <div id="teacherPlaceholder" class="text-white text-xl opacity-70 text-center">Not Connected</div>
+            <div id="screenSharingLabel" class="hidden text-green-500 font-bold absolute right-4 top-4">Screen Sharing</div>
+        </div>
+        <div class="flex gap-3 mt-2 justify-center" id="teacherControls" style="display:none;">
+            <button onclick="startClass()" class="bg-green-600 text-white px-4 py-1 rounded">Start Class</button>
+            <button onclick="toggleVideo()" id="videoBtnIcon" class="bg-blue-600 text-white px-4 py-1 rounded">Toggle Video</button>
+            <button onclick="toggleMic()" id="micBtnIcon" class="bg-blue-600 text-white px-4 py-1 rounded">Toggle Mic</button>
+            <button onclick="toggleScreenShare()" id="screenShareBtnIcon" class="bg-blue-600 text-white px-4 py-1 rounded">Share Screen</button>
+        </div>
+        <div class="flex gap-3 mt-2 justify-center" id="studentControls" style="display:none;">
+            <button onclick="leaveClass()" class="bg-red-600 text-white px-4 py-1 rounded">Leave Class</button>
+        </div>
+    </div>
+    <script>
+        // -- CONFIG --
+        const SIGNALING_URL = "ws://192.168.1.12:3001"; // CHANGE to your local IP
+
+        // -- UI Setup --
+        let userRole = "teacher";
+        let room = "my-class-1";
+        let ws, peer, myStream;
+        let isVideoOn = true, isMicOn = true, isScreenSharing = false;
+
+        document.getElementById('roleSelect').onchange = function() {
+            userRole = this.value;
+            updateUI();
+        };
+        document.getElementById('roomInput').onchange = function() {
+            room = this.value;
+        };
+
+        function updateUI() {
+            if(userRole === "teacher") {
+                document.getElementById('teacherControls').style.display = "flex";
+                document.getElementById('studentControls').style.display = "none";
+            } else {
+                document.getElementById('teacherControls').style.display = "none";
+                document.getElementById('studentControls').style.display = "flex";
+            }
+        }
+        updateUI();
+
+        function joinRoom() {
+            document.getElementById('status').innerText = "Joining room...";
+            ws = new WebSocket(SIGNALING_URL);
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ type: "join", room, role: userRole }));
+                document.getElementById('status').innerText = "Connected to signaling.";
+                if(userRole === "teacher") {
+                    // Wait for student
+                } else {
+                    studentInit();
+                }
+            };
+            ws.onmessage = async (event) => {
+                let data = JSON.parse(event.data);
+                if(userRole === "teacher") {
+                    if(data.type === "signal") {
+                        // Student's answer
+                        peer.signal(data.signal);
+                    }
+                } else if(userRole === "student") {
+                    if(data.type === "signal") {
+                        // Teacher's offer
+                        peer.signal(data.signal);
+                    }
+                }
+            };
+        }
+
+        // TEACHER:
+        async function startClass() {
+            document.getElementById('status').innerText = "Starting class...";
+            try {
+                myStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                showVideo(myStream);
+                peer = new SimplePeer({ initiator: true, trickle: false, stream: myStream });
+                peer.on('signal', data => {
+                    // Send offer to student via signaling server
+                    ws.send(JSON.stringify({ type: "signal", signal: data }));
+                });
+                peer.on('stream', stream => {
+                    showVideo(stream);
+                });
+                peer.on('error', err => {
+                    document.getElementById('status').innerText = "WebRTC Error: " + err;
+                });
+                document.getElementById('status').innerText = "Class started. Waiting for student...";
+            } catch (err) {
+                alert('Camera/Mic access error!');
+            }
+        }
+
+        // STUDENT:
+        function studentInit() {
+            peer = new SimplePeer({ initiator: false, trickle: false });
+            peer.on('signal', data => {
+                ws.send(JSON.stringify({ type: "signal", signal: data }));
+            });
+            peer.on('stream', stream => {
+                showVideo(stream);
+            });
+            peer.on('error', err => {
+                document.getElementById('status').innerText = "WebRTC Error: " + err;
+            });
+            document.getElementById('status').innerText = "Waiting for teacher...";
+        }
+
+        // -- Video/Screen/Mic control --
+        function showVideo(stream) {
+            const video = document.getElementById('teacherVideo');
+            video.srcObject = stream;
+            video.classList.remove('hidden');
+            document.getElementById('teacherPlaceholder').style.display = 'none';
+        }
+
+        function toggleVideo() {
+            isVideoOn = !isVideoOn;
+            if(myStream) myStream.getVideoTracks().forEach(track => track.enabled = isVideoOn);
+        }
+        function toggleMic() {
+            isMicOn = !isMicOn;
+            if(myStream) myStream.getAudioTracks().forEach(track => track.enabled = isMicOn);
+        }
+        async function toggleScreenShare() {
+            if(!peer) return;
+            if(isScreenSharing) {
+                const cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                myStream = cameraStream;
+                isScreenSharing = false;
+                showVideo(myStream);
+                const sender = peer.streams[0].getVideoTracks()[0];
+                peer.replaceTrack(sender, myStream.getVideoTracks()[0], peer.streams[0]);
+            } else {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                myStream = screenStream;
+                isScreenSharing = true;
+                showVideo(myStream);
+                const sender = peer.streams[0].getVideoTracks()[0];
+                peer.replaceTrack(sender, screenStream.getVideoTracks()[0], peer.streams[0]);
+                screenStream.getVideoTracks()[0].onended = () => { toggleScreenShare(); };
+            }
+        }
+        function leaveClass() {
+            if(peer) peer.destroy();
+            location.reload();
+        }
+    </script>
+</body>
+</html>

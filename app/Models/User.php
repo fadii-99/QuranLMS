@@ -30,7 +30,8 @@ class User extends Authenticatable
         'admin_id',
         'remember_token',
         'available_to',
-        'available_from'
+        'available_from',
+        'roll_no'
     ];
 
     protected $hidden = ['password', 'remember_token'];

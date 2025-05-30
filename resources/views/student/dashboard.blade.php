@@ -20,9 +20,21 @@
       $cards = [
         [
           'label' => 'My Attendance',
-          'count' => $attendanceCount,
-          'icon' => 'fas fa-clipboard-check',
+          'count' => $attendancePresentCount + $attendanceAbsentCount,
+          'icon' => 'fas fa-calendar-check',
+          'bg'   => 'from-blue-500 to-blue-600'
+        ],
+        [
+          'label' => 'Present',
+          'count' => $attendancePresentCount,
+          'icon' => 'fas fa-user-check',
           'bg'   => 'from-green-500 to-green-600'
+        ],
+        [
+          'label' => 'Absent',
+          'count' => $attendanceAbsentCount,
+          'icon' => 'fas fa-user-times',
+          'bg'   => 'from-red-500 to-red-600'
         ]
       ];
     @endphp
@@ -46,16 +58,7 @@
   {{-- Current Class Box --}}
   @php
     // This should come from backend controller/service
-    $currentClass = (object)[
-      'id' => 1,
-      'title' => 'Introduction to Quran',
-      'status' => 'Live',
-      'subject' => 'Quran Recitation',
-      'teacher' => (object)['name' => 'Sheikh Abdullah'],
-      'start_time' => now(),
-      'duration' => 45,
-      'classroom' => 'Virtual Room 1'
-    ];
+    $currentClass = $latestClass;
   @endphp
 
   @if($currentClass)
@@ -88,7 +91,7 @@
           <i class="fas fa-book-open text-primary"></i>
           <div>
           <p class="text-sm text-gray-500 dark:text-gray-400">Subject</p>
-          <p class="font-medium">{{ $currentClass->subject ?? '-' }}</p>
+          <p class="font-medium">{{ $currentClass->subject->name }}</p>
           </div>
         </div>
         <div class="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
@@ -101,15 +104,25 @@
         <div class="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
           <i class="fas fa-clock text-primary"></i>
           <div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Time</p>
-          <p class="font-medium">{{ \Carbon\Carbon::parse($currentClass->start_time)->format('h:i A') }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Time</p>
+          <p class="font-medium">
+            @php
+              $timeRange = explode('-', $currentClass->time);
+              $startObj = isset($timeRange[0]) ? \Carbon\Carbon::createFromFormat('H:i', trim($timeRange[0])) : null;
+              $endObj = isset($timeRange[1]) ? \Carbon\Carbon::createFromFormat('H:i', trim($timeRange[1])) : null;
+              $start = $startObj ? $startObj->format('h:i A') : '-';
+              $end = $endObj ? $endObj->format('h:i A') : '-';
+              $duration = ($startObj && $endObj) ? $startObj->diffInMinutes($endObj) : '-';
+            @endphp
+            {{ $start }} - {{ $end }}
+          </p>
           </div>
         </div>
         <div class="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
           <i class="fas fa-hourglass-half text-primary"></i>
           <div>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Duration</p>
-          <p class="font-medium">{{ $currentClass->duration ?? '-' }} mins</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Duration</p>
+            <p class="font-medium">{{ $duration }} mins</p>
           </div>
         </div>
         </div>

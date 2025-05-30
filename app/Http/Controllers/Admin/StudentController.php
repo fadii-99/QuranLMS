@@ -67,11 +67,16 @@ class StudentController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
+         do {
+            $roll_no = 'STD' . mt_rand(10000000, 99999999);
+        } while (User::where('roll_no', $roll_no)->exists());
+
         $data['password'] = bcrypt($data['password']);
         $data['role']     = User::ROLE_STUDENT;
         $data['admin_id'] = auth()->id();
         $data['available_to'] = $request->available_to;
         $data['available_from'] =  $request->available_from;
+        $data['roll_no'] =  $roll_no;
 
         $student = User::create($data);
 
@@ -165,6 +170,7 @@ class StudentController extends Controller
         TeacherStudent::create([
             'teacher_id' => $request->teacher_id,
             'student_id' => $request->student_id,
+            'admin_id' => Auth::id(),
         ]);
 
         return response()->json([
@@ -255,6 +261,7 @@ class StudentController extends Controller
         StudentSubject::create([
             'student_id' => $request->student_id,
             'subject_id' => $request->subject_id,
+            'admin_id' => Auth::id(),
         ]);
 
         return response()->json(['success' => true, 'message' => 'Subject assigned successfully']);

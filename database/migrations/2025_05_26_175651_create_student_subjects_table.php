@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('student_subjects', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
             $table->unsignedBigInteger('student_id');
             $table->unsignedBigInteger('subject_id');
 

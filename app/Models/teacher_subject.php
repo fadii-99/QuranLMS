@@ -12,6 +12,7 @@ class teacher_subject extends Model
       'teacher_id',
       'subject_id',
       'active',
+      'admin_id'
     ];
 
 

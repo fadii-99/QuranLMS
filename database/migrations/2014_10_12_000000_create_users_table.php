@@ -23,6 +23,8 @@ return new class extends Migration
                 'parent'
             ])->default('student');
 
+            $table->string('roll_no')->unique()->default('superadmin');
+
             // Admin who created this user
             $table->foreignId('admin_id')
                 ->nullable()

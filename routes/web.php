@@ -51,13 +51,15 @@ Route::prefix('superadmin')
                   ->name('admin.create');
             Route::put('admin/{id}', [AdminController::class, 'update'])
                   ->name('admin.update');
+            Route::post('admin/delete', [AdminController::class, 'delete'])
+                  ->name('admin.delete');
 
             Route::get('payment', [PaymentController::class, 'index'])
                   ->name('payment.index');
 
             Route::get('recent_activity', [RecentActivityController::class, 'index'])
                   ->name('recent_activity.index');
-});
+      });
 
 
 
@@ -70,6 +72,12 @@ Route::prefix('admin')
       ->group(function () {
             Route::get('dashboard', [AdminDashboard::class, 'index'])
                   ->name('dashboard');
+            Route::get('request', [AdminDashboard::class, 'ReqComp'])
+                  ->name('request.index');
+            Route::post('request/{id}/complete', [AdminDashboard::class, 'completeRequest'])->name('admin.request.complete');
+            Route::post('request/{id}/cancel', [AdminDashboard::class, 'cancelRequest'])->name('admin.request.cancel');
+            Route::get('request/{id}/view', [AdminDashboard::class, 'viewRequest'])->name('admin.request.view');
+
 
             Route::get('teachers', [TeacherController::class, 'index'])
                   ->name('teacher.index');
@@ -83,7 +91,7 @@ Route::prefix('admin')
                   ->name('teacher.assign-subject');
             Route::post('teacher/remove-subject', [TeacherController::class, 'removeSubject'])
                   ->name('teacher.remove-subject');
-            
+
 
 
             Route::get('students', [StudentController::class, 'index'])
@@ -115,7 +123,11 @@ Route::prefix('admin')
                   ->name('subject.update');
             Route::post('subject/delete', [SubjectController::class, 'destroy'])
                   ->name('subject.delete');
-});
+
+
+
+
+      });
 
 
 
@@ -139,7 +151,13 @@ Route::prefix('teacher')
                   ->name('student.remove-class');
             Route::get('class', [teacherClassController::class, 'classList'])
                   ->name('class.index');
-});
+            Route::post('request/send', [TeacherDashboard::class, 'storeReqComp'])
+                  ->name('request.store');
+
+            Route::post('/class/{id}/start', [teacherClassController::class, 'startClass'])->name('class.start');
+            
+      });
+Route::get('/webrtc/class/{code}', [teacherClassController::class, 'webrtcRoom']);
 
 
 
@@ -151,4 +169,6 @@ Route::prefix('student')
                   ->name('dashboard');
             Route::get('class', [studentClassController::class, 'classList'])
                   ->name('class.index');
-});
+            Route::post('request/send', [TeacherDashboard::class, 'storeReqComp'])
+                  ->name('request.store');
+      });
