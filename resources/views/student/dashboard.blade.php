@@ -131,7 +131,7 @@
 
       {{-- Action Button --}}
       <div class="sm:self-center">
-        @if($currentClass->status === 'Live')
+        @if($currentClass->status === 'ongoing')
         <a href="" class="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-primary/50">
           <i class="fas fa-video mr-2"></i>
           Join Class

@@ -42,7 +42,9 @@ class DashboardController extends Controller
         $item = RequestComplain::findOrFail($id);
         $item->status = 'completed';
         $item->save();
-        return response()->json(['success' => true, 'message' => 'Request marked as completed.']);
+        return redirect()->route('admin.request-complains')
+            ->with('success', 'Request marked as completed successfully.');
+        // return response()->json(['success' => true, 'message' => 'Request marked as completed.']);
     }
 
     public function cancelRequest(Request $request, $id)

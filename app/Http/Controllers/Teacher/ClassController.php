@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\TeacherStudent;
-use App\Models\User;
 use App\Models\Klass;
 use Illuminate\Support\Str;
 
@@ -20,41 +18,53 @@ class ClassController extends Controller
         return view('teacher.class_list', compact('classes'));
     }
 
-
     public function startClass(Request $request, $id)
     {
-
         $class = Klass::findOrFail($id);
 
+        if ($class->teacher_id !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
         if ($class->link) {
+            // Already started
             return response()->json([
                 'success' => true,
-                'link' => $class->class_link,
+                'link' => route('teacher.class.jitsi', ['code' => $class->link]),
                 'message' => 'Class already started.'
             ]);
         }
 
-        // Generate random session link (for your WebRTC app)
-        $link = url('/webrtc/class/' . Str::random(16)); // Example: /webrtc/class/abcxyz123
-
-        $class->link = $link;
+        // Generate random Jitsi room code
+        $roomCode = 'class_' . Str::random(12);
+        $class->link = $roomCode;
         $class->teacherStarted = true;
         $class->save();
 
         return response()->json([
             'success' => true,
-            'link' => $link,
+            'link' => route('teacher.class.jitsi', ['code' => $roomCode]),
             'message' => 'Class started successfully.'
         ]);
     }
 
-
-    public function webrtcRoom($code)
+    public function jitsiRoom($code)
     {
-        // Optionally: Check if class exists in DB
-        $class = Klass::where('link', url('/webrtc/class/' . $code))->first();
-$room = $code; // Generate a random room ID
-        // if (!$class) {
-        return view('teacher.class', compact('room'));
+        $class = Klass::where('link', $code)->firstOrFail();
+        $user = Auth::user();
+        $role = ($class->teacher_id === $user->id) ? 'teacher' : 'student';
+        $room = $code;
+
+        return view('teacher.jitsi_class', compact('room', 'role', 'class'));
     }
+    public function jitsiRoomStud($code)
+{
+    $class = Klass::where('link', $code)->firstOrFail();
+    $user = Auth::user();
+    $role = ($class->teacher_id === $user->id) ? 'teacher' : 'student';
+    $room = $code;
+
+    return view('student.jitsi_class', compact('room', 'role', 'class'));
+}
+
 }

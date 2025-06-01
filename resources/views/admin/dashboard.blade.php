@@ -38,11 +38,11 @@
         @endphp
 
         @foreach ($cards as $c)
-            <div class="group block rounded-2xl overflow-hidden shadow-lg transform hover:-translate-y-1 transition">
-                <div class="h-2 bg-gradient-to-r {{ $c['bg'] }}"></div>
-                <div class="bg-white dark:bg-gray-800 p-6 flex items-center space-x-4">
-                    <div class="p-3 rounded-full bg-gradient-to-br {{ $c['bg'] }} text-white">
-                        <i class="{{ $c['icon'] }} text-xl"></i>
+            <div class="group block rounded-2xl overflow-hidden shadow-lg transform hover:-translate-y-1 transition shrink-0">
+                <div class="h-2 bg-gradient-to-r {{ $c['bg'] }} shrink-0"></div>
+                <div class="bg-white dark:bg-gray-800 p-6 flex items-center space-x-4 shrink-0">
+                    <div class="p-3 rounded-full bg-gradient-to-br {{ $c['bg'] }} text-white shrink-0">
+                        <i class="{{ $c['icon'] }} text-xl shrink-0"></i>
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase">{{ $c['label'] }}</p>

@@ -156,19 +156,21 @@ Route::prefix('teacher')
 
             Route::post('/class/{id}/start', [teacherClassController::class, 'startClass'])->name('class.start');
             
+            Route::get('/class/jitsi/{code}', [teacherClassController::class, 'jitsiRoom'])->name('class.jitsi');
       });
-Route::get('/webrtc/class/{code}', [teacherClassController::class, 'webrtcRoom']);
-
-
-
-Route::prefix('student')
+      
+      
+      
+      
+      Route::prefix('student')
       ->name('student.')
       ->middleware(['auth', 'role:' . \App\Models\User::ROLE_STUDENT])
       ->group(function () {
             Route::get('dashboard', [StudentDashboard::class, 'index'])
-                  ->name('dashboard');
+            ->name('dashboard');
             Route::get('class', [studentClassController::class, 'classList'])
-                  ->name('class.index');
+            ->name('class.index');
             Route::post('request/send', [TeacherDashboard::class, 'storeReqComp'])
-                  ->name('request.store');
+            ->name('request.store');
+            Route::get('/class/jitsi/{code}', [teacherClassController::class, 'jitsiRoomStud'])->name('class.jitsi');
       });
