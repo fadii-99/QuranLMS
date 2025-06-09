@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\SubjectController;
+use App\Http\Controllers\Admin\AttendanceController;
 
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
 use App\Http\Controllers\Teacher\StudentController as teacherStudentController;
@@ -124,6 +125,8 @@ Route::prefix('admin')
             Route::post('subject/delete', [SubjectController::class, 'destroy'])
                   ->name('subject.delete');
 
+            Route::get('attendance', [AttendanceController::class, 'index'])
+                  ->name('attendance.index');
 
 
 

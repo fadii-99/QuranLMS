@@ -28,6 +28,10 @@
                 class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('admin.student.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
                 <i class="fas fa-user-graduate  mr-3"></i> Students
             </a>
+            <a href="{{ route('admin.attendance.index') }}"
+                class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('admin.attendance.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
+                <i class="fas fa-calendar-check mr-3"></i> Attendance
+            </a>
            
             <a href="{{ route('admin.request.index') }}"
                 class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('admin.request.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">

@@ -73,13 +73,13 @@
         {{ $currentClass->title }}
         </p>
       </div>
-      <span class="px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-sm
+      {{-- <span class="px-4 py-2 rounded-full text-sm font-semibold backdrop-blur-sm
         {{ $currentClass->status == 'ongoing'   ? 'bg-green-500/20 text-white border border-green-400'  : '' }}
         {{ $currentClass->status == 'upcoming'  ? 'bg-yellow-500/20 text-white border border-yellow-400' : '' }}
         {{ $currentClass->status == 'ended'     ? 'bg-red-500/20 text-white border border-red-400'     : '' }}"
       >
         {{ ucfirst($currentClass->status) }}
-      </span>
+      </span> --}}
       </div>
 
       {{-- Content Section with Better Information Architecture --}}
@@ -131,7 +131,7 @@
 
       {{-- Action Button --}}
       <div class="sm:self-center">
-        @if($currentClass->status === 'ongoing')
+        @if($currentClass->teacherStarted)
         <a href="" class="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-primary/50">
           <i class="fas fa-video mr-2"></i>
           Join Class

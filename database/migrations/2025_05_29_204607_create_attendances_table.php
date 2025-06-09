@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
+            $table->string('attendance_id')->unique()->default('superadmin');
             $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('class_id')->constrained('klasses')->onDelete('cascade');
             $table->foreignId('subject_id')->constrained('subjects')->onDelete('cascade');
             $table->foreignId('teacher_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
+             $table->string('link')->nullable(); 
             $table->string('time'); 
             $table->boolean('teacherJoined')->default(false);
             $table->boolean('studentJoined')->default(false);

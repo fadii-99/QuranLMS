@@ -34,10 +34,10 @@
                             @php
                                 [$startTime, $endTime] = explode('-', $class->time);
                                 $nowTime = \Carbon\Carbon::now()->format('H:i');
-                                $classIsLive = $class->teacherStarted && ($nowTime >= $startTime && $nowTime <= $endTime);
+                                $classIsLive = $class->teacherStarted;
                             @endphp
                             @if ($classIsLive)
-                                <a href="{{ $class->link }}" target="_blank"
+                                <a href="{{ route('teacher.class.jitsi', ['code' => $class->link])}}" target="_blank"
                                     class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
                                     Join Class
                                 </a>
