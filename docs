@@ -1,0 +1,13 @@
+# Generate payment records manually
+php artisan payments:generate-monthly
+
+# Generate for specific month
+php artisan payments:generate-monthly --month=2025-01
+
+# Run scheduled tasks
+php artisan schedule:work
+
+# Or set up cron job
+* * * * * cd /home/fawad/Desktop/LARAVEL/quranLMS && php artisan schedule:run >> /dev/null 2>&1
+
+

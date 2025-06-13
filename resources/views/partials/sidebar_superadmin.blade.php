@@ -42,6 +42,15 @@
                     </span>
                 @endif
             </a>
+            <a href="{{  route('admin.payment.index')  }}"
+                class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('admin.payment.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
+                <i class="fas fa-credit-card mr-3"></i> Payments
+                @if(pending_request_count(auth()->user()->id) > 0)
+                    <span class="ml-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {{ pending_request_count(auth()->user()->id) }}
+                    </span>
+                @endif
+            </a>
         </nav>
     @elseif(auth()->check() && auth()->user()->role === App\Models\User::ROLE_SUPER_ADMIN)
         <nav class="flex-1">

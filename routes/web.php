@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\AttendanceController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 
 use App\Http\Controllers\Teacher\DashboardController as TeacherDashboard;
 use App\Http\Controllers\Teacher\StudentController as teacherStudentController;
@@ -57,6 +58,9 @@ Route::prefix('superadmin')
 
             Route::get('payment', [PaymentController::class, 'index'])
                   ->name('payment.index');
+            Route::patch('payments/{id}/approve', [PaymentController::class, 'approve'])->name('payment.approve');
+            Route::post('/payments/filter', [PaymentController::class, 'filter'])
+                  ->name('payment.filter');
 
             Route::get('recent_activity', [RecentActivityController::class, 'index'])
                   ->name('recent_activity.index');
@@ -129,7 +133,12 @@ Route::prefix('admin')
                   ->name('attendance.index');
 
 
+            Route::get('payments', [AdminPaymentController::class, 'index'])
+                  ->name('payment.index');
 
+            Route::post('/payments/upload', [AdminPaymentController::class, 'upload'])
+                  ->name('payment.upload');
+            
       });
 
 
@@ -158,22 +167,22 @@ Route::prefix('teacher')
                   ->name('request.store');
 
             Route::post('/class/{id}/start', [teacherClassController::class, 'startClass'])->name('class.start');
-            
+
             Route::get('/class/jitsi/{code}', [teacherClassController::class, 'jitsiRoom'])->name('class.jitsi');
       });
-      
-      
-      
-      
-      Route::prefix('student')
+
+
+
+
+Route::prefix('student')
       ->name('student.')
       ->middleware(['auth', 'role:' . \App\Models\User::ROLE_STUDENT])
       ->group(function () {
             Route::get('dashboard', [StudentDashboard::class, 'index'])
-            ->name('dashboard');
+                  ->name('dashboard');
             Route::get('class', [studentClassController::class, 'classList'])
-            ->name('class.index');
+                  ->name('class.index');
             Route::post('request/send', [TeacherDashboard::class, 'storeReqComp'])
-            ->name('request.store');
+                  ->name('request.store');
             Route::get('/class/jitsi/{code}', [teacherClassController::class, 'jitsiRoomStud'])->name('class.jitsi');
       });
