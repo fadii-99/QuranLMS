@@ -30,7 +30,7 @@ class DashboardController extends Controller
     public function ReqComp(Request $request)
     {
         $user = Auth::user();
-        $data = RequestComplain::where('admin_id', $user->id)->paginate(10);
+        $data = RequestComplain::where('admin_id', $user->id)->whereColumn('admin_id', '!=', 'user_id')->paginate(10);
 
         $viewId = $request->query('view_id');
         return view('admin.request-complains', compact('data', 'viewId'));
@@ -59,5 +59,21 @@ class DashboardController extends Controller
     {
         $item = RequestComplain::with('user')->findOrFail($id);
         return response()->json(['success' => true, 'data' => $item]);
+    }
+
+     public function storeReqComp(Request $request)
+    {
+        $request->validate([
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string|max:2000',
+        ]);
+        $user = auth()->user();
+        RequestComplain::create([
+            'admin_id' =>  $user->id,
+            'user_id' =>  $user->id,
+            'subject' => $request->subject,
+            'message' => $request->message,
+        ]);
+        return response()->json(['success' => true, 'message' => 'Request sent!']);
     }
 }

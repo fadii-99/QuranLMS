@@ -56,7 +56,7 @@
         @endif
 
         {{-- Show Approved (when status = approved) --}}
-        @if($showApproved)
+        {{-- @if($showApproved)
             <div class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                 <div class="flex items-center justify-between">
                     <div>
@@ -71,7 +71,7 @@
                     </span>
                 </div>
             </div>
-        @endif
+        @endif --}}
     @endif
 
     {{-- Payment Upload Modal --}}

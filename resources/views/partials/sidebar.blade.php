@@ -45,9 +45,9 @@
             <a href="{{  route('admin.payment.index')  }}"
                 class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('admin.payment.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
                 <i class="fas fa-credit-card mr-3"></i> Payments
-                @if(pending_request_count(auth()->user()->id) > 0)
-                    <span class="ml-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                        {{ pending_request_count(auth()->user()->id) }}
+                @if(is_pending_payment(auth()->user()->id) > 0)
+                    <span class="ml-2 bg-red-500 text-white text-xs font-bold rounded-full w-2 h-2 flex items-start justify-center">
+                        
                     </span>
                 @endif
             </a>
@@ -62,15 +62,33 @@
                 class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('superadmin.admins.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
                 <i class="fas fa-users mr-3"></i> Admins
             </a>
-            <a href="{{ route('superadmin.payment.index') }}"
+            <a href="{{  route('superadmin.payment.index')  }}"
                 class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('superadmin.payment.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
-                <i class="fas fa-university mr-3"></i> Payments
+                <i class="fas fa-credit-card mr-3"></i> Payments
+                @if(under_review_payments_count() > 0)
+                    <span class="ml-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center" title="under review">
+                        {{ under_review_payments_count() }}
+                    </span>
+                @endif
+                @if(pending_payments_count() > 0)
+                    <span class="ml-2 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center" title="under review">
+                        {{ pending_payments_count() }}
+                    </span>
+                @endif
             </a>
-            <a href="{{ route('superadmin.recent_activity.index') }}"
+             <a href="{{ route('superadmin.request.index') }}"
+                class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('superadmin.request.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
+                <i class="fas fa-inbox mr-3"></i> Messages
+                @if(pending_request_count() > 0)
+                    <span class="ml-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {{ pending_request_count() }}
+                    </span>
+                @endif
+            </a>
+            {{-- <a href="{{ route('superadmin.recent_activity.index') }}"
                 class="flex items-center p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 mb-2 {{ request()->routeIs('superadmin.recent_activity.*') ? 'bg-blue-50 dark:bg-gray-700 text-primary dark:text-white' : '' }}">
                 <i class="fas fa-clock mr-3"></i> Recent Activity
-            </a>
-            {{-- add other superadmin links here --}}
+            </a> --}}
         </nav>
     @elseif(auth()->check() && auth()->user()->role === App\Models\User::ROLE_TEACHER)
         <nav class="flex-1">
@@ -176,16 +194,16 @@
         color: #9ca3af;
     }
 </style>
-@if (auth()->check() && auth()->user()->role !== App\Models\User::ROLE_SUPER_ADMIN && auth()->user()->role !== App\Models\User::ROLE_ADMIN)
+@if (auth()->check() && auth()->user()->role !== App\Models\User::ROLE_SUPER_ADMIN)
     
     
-<button id="chatbot-btn" title="Request to Admin">
+<button id="chatbot-btn" title="{{ auth()->user()->role === App\Models\User::ROLE_ADMIN ? 'Request to Super Admin' : 'Request to Admin' }}">
     <i class="fas fa-comment-alt"></i>
 </button>
 <div id="chatbot-popup">
     <button class="close-btn" id="close-chatbot-popup"><i class="fas fa-times"></i></button>
-    <h3 class="text-lg font-bold mb-2 dark:text-white">Send Request to Admin</h3>
-    <form id="teacher-request-form" class="space-y-3">
+    <h3 class="text-lg font-bold mb-2 dark:text-white">{{ auth()->user()->role === App\Models\User::ROLE_ADMIN ? 'Send Request to Super Admin' : 'Send Request to Admin' }}</h3>
+    <form id="request-form" class="space-y-3">
         @csrf
         <div>
             <input name="subject" type="text" placeholder="Subject"
@@ -213,13 +231,21 @@
     closeBtn.onclick = () => popup.classList.remove('active');
 
     // AJAX Form submit
-    document.getElementById('teacher-request-form').onsubmit = async function(e){
+    document.getElementById('request-form').onsubmit = async function(e){
         e.preventDefault();
         let fd = new FormData(this);
         let msgDiv = document.getElementById('chatbot-msg');
         msgDiv.textContent = '';
         try {
-            let url = '{{ auth()->user()->role === App\Models\User::ROLE_TEACHER ? route("teacher.request.store") : route("student.request.store") }}';
+            let url = '';
+            @if(auth()->user()->role === App\Models\User::ROLE_TEACHER)
+                url = '{{ route("teacher.request.store") }}';
+            @elseif(auth()->user()->role === App\Models\User::ROLE_STUDENT)
+                url = '{{ route("student.request.store") }}';
+            @elseif(auth()->user()->role === App\Models\User::ROLE_ADMIN)
+                url = '{{ route("admin.request.store") }}';
+            @endif
+            
             let res = await fetch(url, {
                 method: 'POST',
                 headers: {

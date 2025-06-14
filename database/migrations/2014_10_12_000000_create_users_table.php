@@ -37,6 +37,7 @@ return new class extends Migration
             $table->boolean('is_verified')->default(false);
             $table->boolean('is_paid')->default(true);
             $table->boolean('is_blocked')->default(false);
+            $table->boolean('is_yearly_paid')->default(false);
 
             $table->string('academy_name')->nullable();
             $table->timestamp('email_verified_at')->nullable();

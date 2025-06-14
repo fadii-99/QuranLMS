@@ -1,5 +1,5 @@
 {{-- resources/views/superadmin/recent_activity.blade.php --}}
-@extends('layouts.superadmin')
+@extends('layouts.admin')
 
 @section('title', 'Recent Activity')
 

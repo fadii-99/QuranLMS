@@ -63,14 +63,12 @@ class PaymentController extends Controller
         // Handle file upload using Laravel 10 storage
         $screenshotPath = $request->file('payment_screenshot')->store('payment_screenshots', 'public');
 
-        // Update payment record - status remains 'pending' but now has screenshot (under review)
         $currentMonthPayment->update([
             'payment_screenshot' => $screenshotPath,
             'notes' => $validated['notes'],
             'payment_date' => now(),
-            'transaction_id' => $validated['transaction_reference'] ?? 'TXN_' . auth()->id() . '_' . now()->format('Y_m_d_His'),
-            'status' => 'under_review', // Ensure the status is set to pending
-            // status remains 'pending' - will show "Under Review"
+            'transaction_id' => 'TXN_' . ((auth()->id() + auth()->id()) * auth()->id()). '_' . now()->format('Y_m_d_His'),
+            'status' => 'under_review',
         ]);
 
         return back()->with('success', 'Payment proof uploaded successfully! Your payment is now under review.');

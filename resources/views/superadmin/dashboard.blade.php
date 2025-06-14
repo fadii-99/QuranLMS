@@ -1,5 +1,5 @@
 {{-- resources/views/superadmin/dashboard.blade.php --}}
-@extends('layouts.superadmin')
+@extends('layouts.admin')
 
 @section('title', 'Super Admin Dashboard')
 
@@ -80,7 +80,7 @@
     </div>
 
     {{-- Recent Activity Log --}}
-    <div class="bg-white dark:bg-gray-700 shadow-md rounded-xl p-6" data-aos="fade-left">
+    {{-- <div class="bg-white dark:bg-gray-700 shadow-md rounded-xl p-6" data-aos="fade-left">
       <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4 tracking-tight">Recent Activity</h2>
       <div class="overflow-x-auto">
         <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
@@ -112,6 +112,73 @@
           </tbody>
         </table>
       </div>
+    </div> --}}
+
+    {{-- Pending Requests Table --}}
+    <div class="bg-white dark:bg-gray-700 shadow-md rounded-xl p-6" data-aos="fade-right">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4 tracking-tight">
+                latest Pending Requests
+            </h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                <thead class="text-xs uppercase bg-gray-100 dark:bg-gray-800 font-bold text-gray-700 dark:text-gray-200">
+                    <tr>
+                        <th class="px-6 py-4">Sender</th>
+                        <th class="px-6 py-4">Subject</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @forelse($requests as $item)
+                        <tr class="border-t border-gray-200 dark:border-gray-600">
+                            <td class="px-4 py-2 whitespace-nowrap w-1/6">{{ $item->user->academy_name }}</td>
+                            <td class="px-4 py-2 whitespace-nowrap w-1/6">{{ $item->subject }}</td>
+                            <td class="px-4 py-2 whitespace-nowrap w-1/6">
+                                <span
+                                    class="px-2 py-1 rounded-full text-xs font-medium
+                                {{ $item->status == 'pending' ? 'bg-yellow-200 text-yellow-800' : '' }}
+                                {{ $item->status == 'completed' ? 'bg-green-200 text-green-800' : '' }}
+                                {{ $item->status == 'canceled' ? 'bg-red-200 text-red-800' : '' }}
+                                ">
+                                    {{ ucfirst($item->status) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 space-x-2 whitespace-nowrap w-1/6">
+                                <a href="{{ route('superadmin.request.index', ['view_id' => $item->id]) }}"
+                                    class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded hover:bg-blue-700 transition">
+                                    Go to Message
+                                    <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center">
+                                <div class="flex flex-col items-center justify-center space-y-2">
+                                    <svg class="w-10 h-10 text-gray-300 dark:text-gray-600 mb-2" fill="none"
+                                        stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 8v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+                                    </svg>
+                                    <span class="text-gray-500 dark:text-gray-400 text-lg font-medium">No pending
+                                        requests.</span>
+                                    <span class="text-gray-400 dark:text-gray-500 text-sm">All teacher requests have been
+                                        reviewed.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
   </div>
+   
 @endsection

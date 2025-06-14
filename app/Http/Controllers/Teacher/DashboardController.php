@@ -38,10 +38,10 @@ class DashboardController extends Controller
             'subject' => 'required|string|max:255',
             'message' => 'required|string|max:2000',
         ]);
-        $teacher = auth()->user();
+        $user = auth()->user();
         RequestComplain::create([
-            'admin_id' =>  $teacher->admin_id,
-            'user_id' =>  $teacher->id,
+            'admin_id' =>  $user->admin_id,
+            'user_id' =>  $user->id,
             'subject' => $request->subject,
             'message' => $request->message,
         ]);

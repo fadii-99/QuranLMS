@@ -1,5 +1,5 @@
 {{-- resources/views/teacher/dashboard.blade.php --}}
-@extends('layouts.teacher') {{-- or layouts.teacher if you have one --}}
+@extends('layouts.admin') {{-- or layouts.teacher if you have one --}}
 
 @section('title','Teacher Dashboard')
 

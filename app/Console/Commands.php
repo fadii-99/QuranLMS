@@ -45,9 +45,21 @@ class GenerateMonthlyPayments extends Command
         $progressBar->start();
         
         foreach ($admins as $admin) {
+            if ($admin->is_blocked) {
+                $this->warn("Skipping {$admin->name} ({$admin->email}) - blocked by super admin.");
+                $progressBar->advance();
+                continue;
+            }
+            // if ($admin->is_yearly_paid) {
+            //     $this->warn("Skipping {$admin->name} ({$admin->email}) - paid yearly.");
+            //     $progressBar->advance();
+            //     continue;
+            // }
             $payment = Payment::generateMonthlyRecord($admin->id, $month->startOfMonth());
             if ($payment->wasRecentlyCreated) {
                 $generated++;
+                $admin->is_paid = 0;
+                $admin->save();
             }
             $progressBar->advance();
         }

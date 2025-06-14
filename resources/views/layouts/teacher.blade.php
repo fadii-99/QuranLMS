@@ -49,7 +49,7 @@
     });
   </script>
 @endif
-  @include('partials.sidebar_superadmin')
+  @include('partials.sidebar')
 
   <div id="mainContent" class="p-6 md:ml-64 transition-all duration-300">
     <!-- Mobile hamburger -->

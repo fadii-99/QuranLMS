@@ -23,6 +23,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->boolean('teacherStarted')->default(false);
             $table->boolean('studentJoined')->default(false);
+            $table->boolean('ended')->default(false);
             $table->timestamps();
         });
     }

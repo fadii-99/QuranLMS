@@ -64,6 +64,13 @@ Route::prefix('superadmin')
 
             Route::get('recent_activity', [RecentActivityController::class, 'index'])
                   ->name('recent_activity.index');
+
+
+            Route::get('request', [DashboardController::class, 'ReqComp'])
+                  ->name('request.index');
+            Route::post('request/{id}/complete', [DashboardController::class, 'completeRequest'])->name('admin.request.complete');
+            Route::post('request/{id}/cancel', [DashboardController::class, 'cancelRequest'])->name('admin.request.cancel');
+            Route::get('request/{id}/view', [DashboardController::class, 'viewRequest'])->name('admin.request.view');
       });
 
 
@@ -138,6 +145,9 @@ Route::prefix('admin')
 
             Route::post('/payments/upload', [AdminPaymentController::class, 'upload'])
                   ->name('payment.upload');
+
+            Route::post('request/send', [AdminDashboard::class, 'storeReqComp'])
+                  ->name('request.store');
             
       });
 
@@ -167,6 +177,7 @@ Route::prefix('teacher')
                   ->name('request.store');
 
             Route::post('/class/{id}/start', [teacherClassController::class, 'startClass'])->name('class.start');
+            Route::post('/class/{id}/end', [teacherClassController::class, 'endClass'])->name('class.end');
 
             Route::get('/class/jitsi/{code}', [teacherClassController::class, 'jitsiRoom'])->name('class.jitsi');
       });

@@ -70,8 +70,9 @@ class ClassController extends Controller
         $user = Auth::user();
         $role = ($class->teacher_id === $user->id) ? 'teacher' : 'student';
         $room = $code;
+        $jwt = "eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtMmFlOTJhOGJkYmQ3NDQxM2EwMmZkZjJjMDYyZGZmMGMvMTgzYjIyLVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3NDk4NjI5ODgsImV4cCI6MTc0OTg3MDE4OCwibmJmIjoxNzQ5ODYyOTgzLCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtMmFlOTJhOGJkYmQ3NDQxM2EwMmZkZjJjMDYyZGZmMGMiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlLCJmbGlwIjpmYWxzZX0sInVzZXIiOnsiaGlkZGVuLWZyb20tcmVjb3JkZXIiOmZhbHNlLCJtb2RlcmF0b3IiOnRydWUsIm5hbWUiOiJmYXdkbXVoYW1tYWQxNCIsImlkIjoiZ29vZ2xlLW9hdXRoMnwxMDkxNTYyNzM0NDc5Njg1OTgxMTQiLCJhdmF0YXIiOiIiLCJlbWFpbCI6ImZhd2RtdWhhbW1hZDE0QGdtYWlsLmNvbSJ9fSwicm9vbSI6IioifQ.IpsBeantzff8WriDZ1J8YuRoDSCOgVKFoxIecl_ZB26peNx-MQzo5ans2LFfjleflcbRVdhgfQUIwMXdOfg5z1UnpF3833bKpvnwark9Dwae1UM-7IOHwsv0Omna1pvO7rMh_GEnZT0GkErF-3JIUG0GNtLcUAb7P0lmUw9OQ0ZCj969mBN1N8TQmrT24audMrd8Y-7oCP8V-XGNbYC2Ra-AkhoZVNz69oxC-C4GfOJ3CYkj1E6O6onyBVRlEt439baxUNgYnVcfIyyXE09QA8izDUXi8vkyoWY25AbJRFJq1e8doXcFEmTkr885pHLRv3Lb0OUEywe1ga9cCFgUDA";
 
-        return view('teacher.jitsi_class', compact('room', 'role', 'class'));
+        return view('teacher.jitsi_class', compact('room', 'role', 'class', 'jwt'));
     }
 
 
@@ -95,9 +96,23 @@ class ClassController extends Controller
 
             $class->status = 'ongoing';
             $class->save();
-            return view('student.jitsi_class', compact('room', 'role', 'class'));
+            $jwt = "eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtMmFlOTJhOGJkYmQ3NDQxM2EwMmZkZjJjMDYyZGZmMGMvMTgzYjIyLVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3NDk4NjI5ODgsImV4cCI6MTc0OTg3MDE4OCwibmJmIjoxNzQ5ODYyOTgzLCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtMmFlOTJhOGJkYmQ3NDQxM2EwMmZkZjJjMDYyZGZmMGMiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlLCJmbGlwIjpmYWxzZX0sInVzZXIiOnsiaGlkZGVuLWZyb20tcmVjb3JkZXIiOmZhbHNlLCJtb2RlcmF0b3IiOnRydWUsIm5hbWUiOiJmYXdkbXVoYW1tYWQxNCIsImlkIjoiZ29vZ2xlLW9hdXRoMnwxMDkxNTYyNzM0NDc5Njg1OTgxMTQiLCJhdmF0YXIiOiIiLCJlbWFpbCI6ImZhd2RtdWhhbW1hZDE0QGdtYWlsLmNvbSJ9fSwicm9vbSI6IioifQ.IpsBeantzff8WriDZ1J8YuRoDSCOgVKFoxIecl_ZB26peNx-MQzo5ans2LFfjleflcbRVdhgfQUIwMXdOfg5z1UnpF3833bKpvnwark9Dwae1UM-7IOHwsv0Omna1pvO7rMh_GEnZT0GkErF-3JIUG0GNtLcUAb7P0lmUw9OQ0ZCj969mBN1N8TQmrT24audMrd8Y-7oCP8V-XGNbYC2Ra-AkhoZVNz69oxC-C4GfOJ3CYkj1E6O6onyBVRlEt439baxUNgYnVcfIyyXE09QA8izDUXi8vkyoWY25AbJRFJq1e8doXcFEmTkr885pHLRv3Lb0OUEywe1ga9cCFgUDA";
+            return view('student.jitsi_class', compact('room', 'role', 'class', 'jwt'));
         }
 
         return redirect()->back()->with('error', 'Unauthorized access');
+    }
+
+
+    public function endClass($id)
+    {
+        $class = Klass::findOrFail($id);
+
+        // You can mark it as ended, record attendance, etc.
+        $class->ended = true;
+        $class->save();
+
+
+        return response()->json(['success' => true, 'message' => 'Class ended']);
     }
 }

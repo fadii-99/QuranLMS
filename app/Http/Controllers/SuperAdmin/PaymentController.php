@@ -36,6 +36,7 @@ class PaymentController extends Controller
     {
         $payment = Payment::findOrFail($id);
 
+
         
         if ($payment->status !== 'under_review') {
             return response()->json([
@@ -43,10 +44,15 @@ class PaymentController extends Controller
                 'message' => 'Payment cannot be approved.'
             ]);
         }
+
+        $admin = User::findOrFail($payment->admin_id);
         
         $payment->update([
             'status' => 'approved',
         ]);
+
+        $admin->is_paid = 1;
+        $admin->save();
 
         return response()->json([
             'success' => true,
