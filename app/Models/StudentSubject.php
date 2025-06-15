@@ -11,10 +11,10 @@ class StudentSubject extends Model
     protected $fillable = ['student_id', 'subject_id', 'active', 'admin_id'];
     
     public function student() {
-        return $this->belongsTo(User::class, 'student_id');
+        return $this->hasMany(User::class, 'student_id');
     }
 
     public function subject() {
-        return $this->belongsTo(Subject::class, 'subject_id');
+        return $this->hasMany(Subject::class, 'subject_id');
     }
 }

@@ -30,7 +30,6 @@ class GenerateMonthlyPayments extends Command
         
         // Get all admin users (adjust this condition based on your user structure)
         $admins = User::where('role', 'admin')
-            ->orWhere('user_type', 'admin') // Alternative field name
             ->get();
         
         if ($admins->isEmpty()) {

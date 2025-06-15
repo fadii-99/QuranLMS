@@ -108,9 +108,26 @@ class ClassController extends Controller
     {
         $class = Klass::findOrFail($id);
 
-        // You can mark it as ended, record attendance, etc.
         $class->ended = true;
         $class->save();
+
+        $class = Klass::findOrFail($id);
+
+        if ($class->teacher_id !== Auth::id()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        $class->ended = true;
+        $class->status = 'completed';
+        $class->save();
+
+        Attendance::where('class_id', $class->id)
+            ->where('teacher_id', $class->teacher_id)
+            ->update([
+                'status' => 'completed',
+            ]);
+
+        return response()->json(['success' => true, 'message' => 'Class ended successfully']);
 
 
         return response()->json(['success' => true, 'message' => 'Class ended']);

@@ -680,6 +680,7 @@
                         assignedSubjects = this.dataset.assignedSubjects && this.dataset
                             .assignedSubjects !== "null" ?
                             JSON.parse(this.dataset.assignedSubjects) : [];
+                            alert(assignedSubjects);
                     } catch (e) {
                         assignedSubjects = [];
                     }

@@ -205,7 +205,7 @@ class StudentController extends Controller
         $teacherId = $teacherStudent->teacher_id;
 
         // 2. Find all teacher_subject IDs for this teacher
-        $teacherSubjectIds = teacher_subject::where('teacher_id', $teacherId)->pluck('id');
+        $teacherSubjectIds = teacher_subject::where('student_id', $studentId)->pluck('id');
 
         // 3. Remove all StudentSubject assignments for this student and these teacher_subjects
         \App\Models\StudentSubject::where('student_id', $studentId)
@@ -244,12 +244,12 @@ class StudentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'student_id' => 'required|exists:users,id',
-            'subject_id' => 'required|exists:subjects,id',
+            'subject_id' => 'required|exists:teacher_subjects,id',
         ]);
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
         }
-
+        $ts = teacher_subject::find($request->subject_id);
         // Prevent duplicate assignment
         if (StudentSubject::where('student_id', $request->student_id)->exists()) {
             return response()->json(['success' => false, 'message' => 'Subject already assigned to this student'], 422);
@@ -259,8 +259,8 @@ class StudentController extends Controller
         }
 
         StudentSubject::create([
-            'student_id' => $request->student_id,
-            'subject_id' => $request->subject_id,
+            'student_id' => (int) $request->student_id,
+            'subject_id' => (int) $ts->subject_id,
             'admin_id' => Auth::id(),
         ]);
 

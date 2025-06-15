@@ -1,3 +1,6 @@
+php artisan db:seed
+
+
 # Generate payment records manually
 php artisan payments:generate-monthly
 
@@ -11,3 +14,6 @@ php artisan schedule:work
 * * * * * cd /home/fawad/Desktop/LARAVEL/quranLMS && php artisan schedule:run >> /dev/null 2>&1
 
 
+php artisan classes:reset-expired
+php artisan classes:mark-missed
+php artisan payments:generate-monthly

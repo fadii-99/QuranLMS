@@ -17,6 +17,18 @@ class Kernel extends ConsoleKernel
                  ->monthlyOn(1, '00:01')
                  ->withoutOverlapping()
                  ->runInBackground();
+        
+        // Reset expired classes every hour
+        $schedule->command('classes:reset-expired')
+                 ->hourly()
+                 ->withoutOverlapping()
+                 ->runInBackground();
+        
+        // Mark missed classes every hour
+        $schedule->command('classes:mark-missed')
+             ->everyThirtyMinutes()
+             ->withoutOverlapping()
+             ->runInBackground();
     }
 
     /**
