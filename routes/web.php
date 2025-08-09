@@ -167,8 +167,6 @@ Route::prefix('teacher')
                   ->name('students.index');
             Route::post('student/assign-class', [teacherStudentController::class, 'assignClass'])
                   ->name('student.assign-class');
-            Route::post('student/assign-class', [teacherStudentController::class, 'assignClass'])
-                  ->name('student.assign-class');
             Route::post('student/remove-class', [teacherStudentController::class, 'removeClass'])
                   ->name('student.remove-class');
             Route::get('class', [teacherClassController::class, 'classList'])
@@ -177,9 +175,10 @@ Route::prefix('teacher')
                   ->name('request.store');
 
             Route::post('/class/{id}/start', [teacherClassController::class, 'startClass'])->name('class.start');
+            Route::get('/classroom/webrtc/{code}', [teacherClassController::class, 'customWebrtcRoom'])->name('class.custom_webrtc');
+            Route::get('/classroom/smart/{code}', [teacherClassController::class, 'smartClassroom'])->name('class.smart');
             Route::post('/class/{id}/end', [teacherClassController::class, 'endClass'])->name('class.end');
-
-            Route::get('/class/jitsi/{code}', [teacherClassController::class, 'jitsiRoom'])->name('class.jitsi');
+            Route::get('/class/{code}/analytics', [teacherClassController::class, 'getClassAnalytics'])->name('class.analytics');
       });
 
 
@@ -193,7 +192,10 @@ Route::prefix('student')
                   ->name('dashboard');
             Route::get('class', [studentClassController::class, 'classList'])
                   ->name('class.index');
+            Route::get('/classroom/join/{code}', [studentClassController::class, 'joinClass'])->name('class.join');
+            Route::get('/classroom/smart/{code}', [studentClassController::class, 'smartClassroom'])->name('class.smart');
+            Route::post('/classroom/leave/{code}', [studentClassController::class, 'leaveClass'])->name('class.leave');
+            Route::get('/attendance/my', [studentClassController::class, 'getMyAttendance'])->name('attendance.my');
             Route::post('request/send', [TeacherDashboard::class, 'storeReqComp'])
                   ->name('request.store');
-            Route::get('/class/jitsi/{code}', [teacherClassController::class, 'jitsiRoomStud'])->name('class.jitsi');
       });

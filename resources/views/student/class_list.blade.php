@@ -41,7 +41,7 @@
                             @endphp
 
                             @if ($classIsLive)
-                                <a href="{{ route('student.class.jitsi', ['code' => $class->link]) }}" target="_blank"
+                                <a href="{{ route('student.class.join', ['code' => $class->link]) }}"
                                     class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring focus:ring-blue-200 active:bg-blue-600 transition ease-in-out duration-150">
                                     <i class="fas fa-video mr-2"></i>
                                     Join Class

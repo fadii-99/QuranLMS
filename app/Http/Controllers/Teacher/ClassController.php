@@ -10,9 +10,14 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use App\Models\StudentSubject;
 use App\Models\Attendance;
+use App\Models\User;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ClassController extends Controller
 {
+    private $pythonApiUrl = 'http://localhost:8002/api';
+
     public function classList()
     {
         $user = Auth::user();
@@ -29,78 +34,128 @@ class ClassController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        // If class not started yet, start it
-        if (!$class->link) {
-            $roomCode = 'class_' . Str::random(12);
-            $class->link = $roomCode;
-            $class->teacherStarted = true;
-            $class->save();
-        }
+        try {
+            // Get enrolled students for this class
+            $students = StudentSubject::where('subject_id', $class->subject_id)
+                ->pluck('student_id')
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
 
-        $timeNow = Carbon::now()->format('H:i:s');
-        $adminId = Auth::user()->admin_id; // fallback if admin_id is null
+            // If no students found, create empty array but still allow class to start
+            if (empty($students)) {
+                Log::info('No students enrolled in subject', ['subject_id' => $class->subject_id]);
+                $students = [];
+            }
 
-
-        // foreach ($students as $studentId) {
-        Attendance::updateOrCreate(
-            [
-                'admin_id'      => $adminId,
-                'class_id'      => $class->id,
-                'subject_id'    => $class->subject_id,
-                'teacher_id'    => $class->teacher_id,
-                'student_id'    => $class->student_id,
-                'time'          => $timeNow,
-                'teacherJoined' => true,
-                'studentJoined' => false,
-                'status'        => 'started',
-            ]
-        );
-        // }
-
-        return response()->json([
-            'success' => true,
-            'link' => route('teacher.class.jitsi', ['code' => $class->link]),
-            'message' => 'Class started and attendance recorded.',
-        ]);
-    }
-
-    public function jitsiRoom($code)
-    {
-        $class = Klass::where('link', $code)->firstOrFail();
-        $user = Auth::user();
-        $role = ($class->teacher_id === $user->id) ? 'teacher' : 'student';
-        $room = $code;
-        $jwt = "eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtMmFlOTJhOGJkYmQ3NDQxM2EwMmZkZjJjMDYyZGZmMGMvMTgzYjIyLVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3NDk4NjI5ODgsImV4cCI6MTc0OTg3MDE4OCwibmJmIjoxNzQ5ODYyOTgzLCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtMmFlOTJhOGJkYmQ3NDQxM2EwMmZkZjJjMDYyZGZmMGMiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlLCJmbGlwIjpmYWxzZX0sInVzZXIiOnsiaGlkZGVuLWZyb20tcmVjb3JkZXIiOmZhbHNlLCJtb2RlcmF0b3IiOnRydWUsIm5hbWUiOiJmYXdkbXVoYW1tYWQxNCIsImlkIjoiZ29vZ2xlLW9hdXRoMnwxMDkxNTYyNzM0NDc5Njg1OTgxMTQiLCJhdmF0YXIiOiIiLCJlbWFpbCI6ImZhd2RtdWhhbW1hZDE0QGdtYWlsLmNvbSJ9fSwicm9vbSI6IioifQ.IpsBeantzff8WriDZ1J8YuRoDSCOgVKFoxIecl_ZB26peNx-MQzo5ans2LFfjleflcbRVdhgfQUIwMXdOfg5z1UnpF3833bKpvnwark9Dwae1UM-7IOHwsv0Omna1pvO7rMh_GEnZT0GkErF-3JIUG0GNtLcUAb7P0lmUw9OQ0ZCj969mBN1N8TQmrT24audMrd8Y-7oCP8V-XGNbYC2Ra-AkhoZVNz69oxC-C4GfOJ3CYkj1E6O6onyBVRlEt439baxUNgYnVcfIyyXE09QA8izDUXi8vkyoWY25AbJRFJq1e8doXcFEmTkr885pHLRv3Lb0OUEywe1ga9cCFgUDA";
-
-        return view('teacher.jitsi_class', compact('room', 'role', 'class', 'jwt'));
-    }
-
-
-    public function jitsiRoomStud($code)
-    {
-        $class = Klass::where('link', $code)->firstOrFail();
-        if (!$class) {
-            return redirect()->back()->with('error', 'Class not found');
-        }
-
-        $user = Auth::user();
-        $role = ($class->student_id === $user->id) ? 'student' : 'teacher';
-        $room = $code;
-
-        if ($role === 'student') {
-            Attendance::where('link', $code)
-                ->update([
-                    'studentJoined' => true,
-                    'status' => 'joined',
+            // If class not started yet, create room via Python API
+            if (!$class->link) {
+                $response = Http::post($this->pythonApiUrl . '/rooms/create', [
+                    'name' => $class->title ?? 'Quran Class',
+                    'subject' => $class->subject->name ?? 'Quran Studies',
+                    'teacher_id' => $class->teacher_id,
+                    'student_ids' => $students,
+                    'duration_minutes' => 90
                 ]);
 
-            $class->status = 'ongoing';
-            $class->save();
-            $jwt = "eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtMmFlOTJhOGJkYmQ3NDQxM2EwMmZkZjJjMDYyZGZmMGMvMTgzYjIyLVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3NDk4NjI5ODgsImV4cCI6MTc0OTg3MDE4OCwibmJmIjoxNzQ5ODYyOTgzLCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtMmFlOTJhOGJkYmQ3NDQxM2EwMmZkZjJjMDYyZGZmMGMiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlLCJmbGlwIjpmYWxzZX0sInVzZXIiOnsiaGlkZGVuLWZyb20tcmVjb3JkZXIiOmZhbHNlLCJtb2RlcmF0b3IiOnRydWUsIm5hbWUiOiJmYXdkbXVoYW1tYWQxNCIsImlkIjoiZ29vZ2xlLW9hdXRoMnwxMDkxNTYyNzM0NDc5Njg1OTgxMTQiLCJhdmF0YXIiOiIiLCJlbWFpbCI6ImZhd2RtdWhhbW1hZDE0QGdtYWlsLmNvbSJ9fSwicm9vbSI6IioifQ.IpsBeantzff8WriDZ1J8YuRoDSCOgVKFoxIecl_ZB26peNx-MQzo5ans2LFfjleflcbRVdhgfQUIwMXdOfg5z1UnpF3833bKpvnwark9Dwae1UM-7IOHwsv0Omna1pvO7rMh_GEnZT0GkErF-3JIUG0GNtLcUAb7P0lmUw9OQ0ZCj969mBN1N8TQmrT24audMrd8Y-7oCP8V-XGNbYC2Ra-AkhoZVNz69oxC-C4GfOJ3CYkj1E6O6onyBVRlEt439baxUNgYnVcfIyyXE09QA8izDUXi8vkyoWY25AbJRFJq1e8doXcFEmTkr885pHLRv3Lb0OUEywe1ga9cCFgUDA";
-            return view('student.jitsi_class', compact('room', 'role', 'class', 'jwt'));
+                if ($response->successful()) {
+                    $roomData = $response->json();
+                    $class->link = $roomData['room_code'];
+                    $class->teacherStarted = true;
+                    $class->save();
+                    
+                    Log::info('Room created via Python API', ['room_code' => $roomData['room_code']]);
+                } else {
+                    // Fallback to local room generation
+                    $roomCode = 'class_' . Str::random(12);
+                    $class->link = $roomCode;
+                    $class->teacherStarted = true;
+                    $class->save();
+                    
+                    Log::warning('Python API unavailable, using fallback room generation');
+                }
+            }
+
+            $timeNow = Carbon::now()->format('H:i:s');
+            $adminId = Auth::user()->admin_id;
+
+            // Record attendance for each enrolled student
+            if (!empty($students)) {
+                foreach ($students as $studentId) {
+                    // Verify student exists before creating attendance record
+                    if (User::find($studentId)) {
+                        Attendance::updateOrCreate(
+                            [
+                                'admin_id'   => $adminId,
+                                'class_id'   => $class->id,
+                                'subject_id' => $class->subject_id,
+                                'teacher_id' => $class->teacher_id,
+                                'student_id' => $studentId,
+                            ],
+                            [
+                                'attendance_id' => Str::uuid()->toString(),
+                                'time'          => $timeNow,
+                                'teacherJoined' => true,
+                                'studentJoined' => false,
+                                'status'        => 'started',
+                            ]
+                        );
+                    } else {
+                        Log::warning('Student not found when creating attendance', ['student_id' => $studentId]);
+                    }
+                }
+            } else {
+                Log::info('No students to create attendance records for');
+            }
+
+            return response()->json([
+                'success' => true,
+                'link' => route('teacher.class.smart', ['code' => $class->link]),
+                'room_code' => $class->link,
+                'message' => 'Class started successfully with smart classroom.',
+                'python_api_status' => Http::get($this->pythonApiUrl)->successful() ? 'available' : 'unavailable'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error starting class: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to start class: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function customWebrtcRoom($code)
+    {
+        // Redirect to smart classroom instead
+        return $this->smartClassroom($code);
+    }
+
+    public function smartClassroom($code)
+    {
+        $class = Klass::where('link', $code)->firstOrFail();
+        $user = Auth::user();
+        
+        // Verify teacher access
+        if ($class->teacher_id !== $user->id) {
+            return redirect()->back()->with('error', 'Unauthorized access');
         }
 
-        return redirect()->back()->with('error', 'Unauthorized access');
+        $role = 'teacher';
+        $room = $code;
+
+        // Try to get room info from Python API
+        try {
+            $response = Http::get($this->pythonApiUrl . "/rooms/{$code}");
+            $roomInfo = $response->successful() ? $response->json() : null;
+        } catch (\Exception $e) {
+            Log::warning('Could not fetch room info from Python API: ' . $e->getMessage());
+            $roomInfo = null;
+        }
+
+        return view('smart_classroom', compact('room', 'role', 'class', 'roomInfo'));
     }
 
 
@@ -108,28 +163,170 @@ class ClassController extends Controller
     {
         $class = Klass::findOrFail($id);
 
-        $class->ended = true;
-        $class->save();
-
-        $class = Klass::findOrFail($id);
-
         if ($class->teacher_id !== Auth::id()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
-        $class->ended = true;
-        $class->status = 'completed';
-        $class->save();
+        try {
+            // Update class status
+            $class->ended = true;
+            $class->status = 'completed';
+            $class->teacherStarted = false;
+            $class->save();
 
-        Attendance::where('class_id', $class->id)
-            ->where('teacher_id', $class->teacher_id)
-            ->update([
-                'status' => 'completed',
+            // Update attendance records
+            Attendance::where('class_id', $class->id)
+                ->where('teacher_id', $class->teacher_id)
+                ->update([
+                    'status' => 'completed',
+                    'time' => Carbon::now()->format('H:i:s')
+                ]);
+
+            // Notify Python API about class end
+            if ($class->link) {
+                try {
+                    Http::post($this->pythonApiUrl . "/rooms/{$class->link}/leave", [
+                        'user_id' => Auth::id()
+                    ]);
+                } catch (\Exception $e) {
+                    Log::warning('Could not notify Python API about class end: ' . $e->getMessage());
+                }
+            }
+
+            return response()->json([
+                'success' => true, 
+                'message' => 'Class ended successfully',
+                'redirect' => route('teacher.class.index')
             ]);
 
-        return response()->json(['success' => true, 'message' => 'Class ended successfully']);
+        } catch (\Exception $e) {
+            Log::error('Error ending class: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to end class: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
+    public function endClassByCode($code)
+    {
+        $class = Klass::where('link', $code)->firstOrFail();
+        $user = Auth::user();
+        
+        if ($class->teacher_id !== $user->id) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
 
-        return response()->json(['success' => true, 'message' => 'Class ended']);
+        try {
+            // Update class status
+            $class->ended = true;
+            $class->teacherStarted = false;
+            $class->status = 'completed';
+            $class->save();
+
+            // Update attendance records
+            Attendance::where('class_id', $class->id)
+                ->update([
+                    'status' => 'completed',
+                    'time' => Carbon::now()->format('H:i:s')
+                ]);
+
+            // Notify Python API about class end
+            try {
+                Http::post($this->pythonApiUrl . "/rooms/{$code}/leave", [
+                    'user_id' => $user->id
+                ]);
+            } catch (\Exception $e) {
+                Log::warning('Could not notify Python API about class end: ' . $e->getMessage());
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Class ended successfully',
+                'redirect' => route('teacher.class.index')
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error ending class: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to end class: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getClassAnalytics($code)
+    {
+        $class = Klass::where('link', $code)->firstOrFail();
+        $user = Auth::user();
+        
+        if ($class->teacher_id !== $user->id) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+
+        try {
+            // Get attendance report from Python API
+            $response = Http::get($this->pythonApiUrl . "/rooms/{$code}/attendance");
+            
+            if ($response->successful()) {
+                $pythonReport = $response->json();
+            } else {
+                $pythonReport = null;
+            }
+
+            // Get local attendance data
+            $localAttendance = Attendance::where('class_id', $class->id)
+                ->with(['student', 'subject'])
+                ->get();
+
+            $analytics = [
+                'class_info' => [
+                    'id' => $class->id,
+                    'title' => $class->title,
+                    'subject' => $class->subject->name ?? 'N/A',
+                    'room_code' => $class->link,
+                    'status' => $class->status ?? 'active'
+                ],
+                'attendance' => [
+                    'total_enrolled' => $localAttendance->count(),
+                    'present_count' => $localAttendance->where('studentJoined', true)->count(),
+                    'attendance_rate' => $localAttendance->count() > 0 
+                        ? round(($localAttendance->where('studentJoined', true)->count() / $localAttendance->count()) * 100, 2) 
+                        : 0,
+                    'details' => $localAttendance->map(function($record) {
+                        return [
+                            'student_name' => $record->student->name ?? 'N/A',
+                            'joined' => $record->studentJoined,
+                            'time' => $record->time,
+                            'status' => $record->status
+                        ];
+                    })
+                ],
+                'python_api_data' => $pythonReport,
+                'generated_at' => now()->toISOString()
+            ];
+
+            return response()->json([
+                'success' => true,
+                'analytics' => $analytics
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error getting class analytics: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get analytics: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    private function callPythonAPI($endpoint, $data = null, $method = 'GET')
+    {
+        $baseUrl = env('PYTHON_API_URL', 'http://localhost:8001');
+        
+        // ...existing code...
     }
 }
